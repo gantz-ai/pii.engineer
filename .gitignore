@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Virtualenv
+venv/
+.venv/
+env/
+
+# OS
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Local caches
+.cache/
+*.log
+
+# Rust build artifacts
+/target/
+
+# Trained model artefacts (ship out-of-band via scp/HF Hub, not git)
+# Leading slash anchors to repo root so this doesn't match app/models/.
+/models/
+
+# Training outputs (adapters, checkpoints)
+/output/
+
+# Training data (kept locally only)
+/data/
+/datasets/
+
+# A100 training archive (logs/scripts kept locally for reference, not in git)
+/training_a100_archive/
+
+# Internal docs (infra, training, deployment — not for public repo)
+/docs/
+/tools/
+/scripts/
+
+# Local secrets
+.env
+*.key
+*.pem
+
+# Bundled native libraries
+lib/

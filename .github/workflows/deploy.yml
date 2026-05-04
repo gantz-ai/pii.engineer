@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build release
+        run: cargo build --release --package pii-engineer-server
+
+      - name: Deploy to server
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_OPTS="-o StrictHostKeyChecking=no -i ~/.ssh/deploy_key"
+
+          # Upload binary and static files
+          scp $SSH_OPTS target/release/pii-engineer-server root@$HOST:/opt/pii-engineer/pii-engineer-server.new
+          tar czf /tmp/static.tar.gz -C static .
+          scp $SSH_OPTS /tmp/static.tar.gz root@$HOST:/tmp/static.tar.gz
+          ssh $SSH_OPTS root@$HOST 'mkdir -p /opt/pii-engineer/static && tar xzf /tmp/static.tar.gz -C /opt/pii-engineer/static && rm /tmp/static.tar.gz'
+
+          # Swap binary and restart
+          ssh $SSH_OPTS root@$HOST '
+            systemctl stop pii-engineer || true
+            mv /opt/pii-engineer/pii-engineer-server.new /opt/pii-engineer/pii-engineer-server
+            chmod +x /opt/pii-engineer/pii-engineer-server
+            systemctl start pii-engineer
+          '

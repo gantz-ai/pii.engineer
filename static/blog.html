@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="PII Engineer blog — articles on multilingual PII detection, privacy compliance, and NER model architecture." />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <title>Blog — PII Engineer</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+      :root {
+        --bg: #050810;
+        --bg-1: #0a0f1a;
+        --bg-2: #111827;
+        --border: rgba(59, 130, 246, 0.22);
+        --border-hover: rgba(59, 130, 246, 0.35);
+        --fg: #f1f5f9;
+        --fg-2: #cbd5e1;
+        --fg-3: #94a3b8;
+        --accent: #3b82f6;
+        --accent-bright: #60a5fa;
+        --green: #34d399;
+        --radius: 4px;
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 32px 80px;
+      }
+      .back {
+        display: inline-block;
+        color: var(--fg-3);
+        text-decoration: none;
+        font-family: var(--mono);
+        font-size: 12px;
+        margin-bottom: 32px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .back:hover { color: var(--accent-bright); }
+      h1 {
+        font-family: var(--mono);
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      h1 span { color: var(--accent-bright); }
+      .subtitle {
+        color: var(--fg-3);
+        font-size: 14px;
+        margin-bottom: 48px;
+      }
+      .post-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .post-card {
+        display: block;
+        background: var(--bg-1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px 28px;
+        text-decoration: none;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .post-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: 0 4px 24px rgba(59, 130, 246, 0.08);
+      }
+      .post-meta {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--fg-3);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+        display: flex;
+        gap: 16px;
+      }
+      .post-tag {
+        color: var(--green);
+      }
+      .post-card h2 {
+        font-family: var(--mono);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--fg);
+        margin-bottom: 8px;
+      }
+      .post-card p {
+        color: var(--fg-2);
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 0;
+      }
+      @media (max-width: 640px) {
+        .container { padding: 24px 16px 60px; }
+        h1 { font-size: 22px; }
+        .post-card { padding: 16px 18px; }
+        .post-card h2 { font-size: 14px; }
+        .post-card p { font-size: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back">&larr; Back to PII Engineer</a>
+      <h1><span>Blog</span></h1>
+      <p class="subtitle">Articles on PII detection, privacy compliance, and NER model architecture.</p>
+
+      <div class="post-list">
+        <a href="/static/blog/how-pii-engineer-detects-personal-data.html" class="post-card">
+          <div class="post-meta">
+            <span>May 2026</span>
+            <span class="post-tag">Architecture</span>
+          </div>
+          <h2>How PII Engineer Detects Personal Data Across 13+ Languages</h2>
+          <p>A deep dive into the GLiNER2 NER engine, the 8-stage post-processing pipeline, and how we achieve 90%+ F1 across 9 PII types without a GPU.</p>
+        </a>
+
+        <a href="/static/blog/pdpa-compliance-automating-pii-detection.html" class="post-card">
+          <div class="post-meta">
+            <span>May 2026</span>
+            <span class="post-tag">Compliance</span>
+          </div>
+          <h2>PDPA Compliance: Automating PII Detection in Southeast Asia</h2>
+          <p>How to use PII Engineer to scan documents, chat logs, and databases for personal data under PDPA, PDPD, PDP Law, and PIPL regulations.</p>
+        </a>
+
+        <a href="/static/blog/benchmarking-pii-detection.html" class="post-card">
+          <div class="post-meta">
+            <span>May 2026</span>
+            <span class="post-tag">Benchmarks</span>
+          </div>
+          <h2>Benchmarking PII Detection: Precision vs Recall Across 9 Entity Types</h2>
+          <p>Our evaluation results on real-world multilingual text — what works, where the model struggles, and how the post-processing pipeline improves raw NER output.</p>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+PII Engineer
+Copyright 2025-2026 PII Engineer (https://pii.engineer)
+
+This product includes software developed by third parties:
+
+- GLiNER2 (gliner2-multi-v1)
+  Copyright (c) 2024 Urchade Zaratiana, Nadi Tomeh, Pierre Holat, Thierry Charnois
+  Licensed under Apache License 2.0
+  https://huggingface.co/fastino/gliner2-multi-v1
+
+- mDeBERTa-v3-base
+  Copyright (c) Microsoft Corporation
+  Licensed under MIT License
+  https://huggingface.co/microsoft/mdeberta-v3-base

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <title>404 — PII Engineer</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+      body {
+        background: #050810;
+        color: #f1f5f9;
+        font-family: "JetBrains Mono", monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        text-align: center;
+      }
+      .wrap { max-width: 400px; padding: 32px; }
+      .code {
+        font-size: 96px;
+        font-weight: 700;
+        color: #3b82f6;
+        line-height: 1;
+        margin-bottom: 16px;
+      }
+      .msg {
+        font-size: 16px;
+        color: #94a3b8;
+        margin-bottom: 32px;
+      }
+      a {
+        display: inline-block;
+        padding: 10px 24px;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 4px;
+        color: #60a5fa;
+        text-decoration: none;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s;
+      }
+      a:hover {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="code">404</div>
+      <div class="msg">This page doesn't exist.<br>Maybe the PII was redacted too well.</div>
+      <a href="/">Back to PII Engineer</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLiNER2 Lab</title>
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+      --green: #3fb950; --red: #f85149; --yellow: #d29922;
+      --radius: 8px; --space: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: var(--space); max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    h1 a { color: var(--muted); font-size: 0.85rem; text-decoration: none; margin-left: 12px; }
+    h1 a:hover { color: var(--accent); }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: var(--space); }
+    .tabs { display: flex; gap: 4px; margin-bottom: var(--space); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .tab { padding: 8px 16px; background: transparent; border: 1px solid transparent; border-radius: var(--radius) var(--radius) 0 0; color: var(--muted); cursor: pointer; font-size: 0.9rem; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-color: var(--border); border-bottom-color: var(--bg); background: var(--surface); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space); margin-bottom: var(--space); }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    textarea, input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 10px; font-size: 0.9rem; font-family: inherit; resize: vertical; }
+    textarea { min-height: 80px; }
+    input[type="text"] { height: 38px; }
+    .row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .row > * { flex: 1; }
+    .chip-input { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; min-height: 38px; align-items: center; cursor: text; }
+    .chip { background: #1f2937; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; color: var(--accent); display: flex; align-items: center; gap: 4px; }
+    .chip .x { cursor: pointer; color: var(--muted); font-size: 0.7rem; }
+    .chip .x:hover { color: var(--red); }
+    .chip-input input { border: none; background: transparent; color: var(--text); outline: none; font-size: 0.85rem; flex: 1; min-width: 80px; }
+    button.run { background: var(--accent); color: #000; border: none; padding: 10px 24px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    button.run:hover { opacity: 0.9; }
+    button.run:disabled { opacity: 0.4; cursor: not-allowed; }
+    .examples { margin-top: 12px; }
+    .examples summary { color: var(--muted); font-size: 0.8rem; cursor: pointer; }
+    .examples summary:hover { color: var(--text); }
+    .example-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .example-btn { background: #1f2937; border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; font-size: 0.75rem; color: var(--muted); cursor: pointer; }
+    .example-btn:hover { color: var(--text); border-color: var(--accent); }
+    .result-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: var(--space); margin-top: var(--space); font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-word; max-height: 400px; overflow-y: auto; }
+    .result-box.error { border-color: var(--red); color: var(--red); }
+    .timing { color: var(--muted); font-size: 0.75rem; margin-top: 6px; }
+    .hidden { display: none; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 6px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .badge { display: inline-block; background: #1f2937; border-radius: 4px; padding: 1px 6px; font-size: 0.7rem; color: var(--green); margin-left: 8px; }
+  </style>
+</head>
+<body>
+  <h1>GLiNER2 Lab <span class="badge">v2-full</span> <a href="/">Back to PII Detect</a></h1>
+  <p class="subtitle">Test all GLiNER2 capabilities: entity extraction, text classification, structured data, relations, and NLI.</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('ner')">Entity Extraction</div>
+    <div class="tab" onclick="switchTab('classify')">Classification</div>
+    <div class="tab" onclick="switchTab('structured')">Structured Data</div>
+    <div class="tab" onclick="switchTab('relations')">Relations</div>
+    <div class="tab" onclick="switchTab('nli')">NLI</div>
+  </div>
+
+  <!-- NER Panel -->
+  <div class="panel active" id="panel-ner">
+    <div class="card">
+      <label>Text</label>
+      <textarea id="ner-text" placeholder="Enter text to extract entities from...">John Smith lives at 123 Orchard Road, Singapore. His NRIC is S9012345B and email is john@example.com.</textarea>
+      <label style="margin-top:12px">Entity labels (comma-separated) <button class="example-btn" onclick="document.getElementById('ner-labels').value='person_name, government_id, phone_number, street_address, date_of_birth, email_address, passport_number, license_plate, bank_account_number'" style="margin-left:8px">All labels</button></label>
+      <input type="text" id="ner-labels" value="person_name, government_id, email_address, street_address, phone_number" />
+      <button class="run" onclick="runNer()">Extract Entities</button>
+      <details class="examples">
+        <summary>Try an example</summary>
+        <div class="example-list">
+          <button class="example-btn" onclick="loadNerExample(0)">Multi-PII English</button>
+          <button class="example-btn" onclick="loadNerExample(1)">Vietnamese</button>
+          <button class="example-btn" onclick="loadNerExample(2)">Thai ID</button>
+          <button class="example-btn" onclick="loadNerExample(3)">Email + Phone</button>
+        </div>
+      </details>
+    </div>
+    <div id="ner-result" class="hidden"></div>
+  </div>
+
+  <!-- Classification Panel -->
+  <div class="panel" id="panel-classify">
+    <div class="card">
+      <label>Text</label>
+      <textarea id="clf-text" placeholder="Enter text to classify...">I need to update my bank account details and change my registered phone number with the company.</textarea>
+      <label style="margin-top:12px">Classification labels (comma-separated)</label>
+      <input type="text" id="clf-labels" value="pii_request, general_inquiry, complaint, account_update" />
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label><input type="checkbox" id="clf-multi"> Multi-label (sigmoid instead of softmax)</label>
+        </div>
+      </div>
+      <button class="run" onclick="runClassify()">Classify</button>
+      <details class="examples">
+        <summary>Try an example</summary>
+        <div class="example-list">
+          <button class="example-btn" onclick="loadClfExample(0)">PII request</button>
+          <button class="example-btn" onclick="loadClfExample(1)">Spam detection</button>
+          <button class="example-btn" onclick="loadClfExample(2)">Sentiment</button>
+          <button class="example-btn" onclick="loadClfExample(3)">Topic classification</button>
+        </div>
+      </details>
+    </div>
+    <div id="clf-result" class="hidden"></div>
+  </div>
+
+  <!-- Structured Panel -->
+  <div class="panel" id="panel-structured">
+    <div class="card">
+      <label>Text</label>
+      <textarea id="struct-text" placeholder="Enter text to extract structured data from...">Nguyen Van A, born 15/03/1990, CCCD 012345678901. Address: 123 Le Loi, District 1, Ho Chi Minh City. Phone: 0901234567, email: a.nguyen@gmail.com</textarea>
+      <label style="margin-top:12px">Schema name</label>
+      <input type="text" id="struct-schema" value="pii_profile" />
+      <label style="margin-top:12px">Fields (comma-separated)</label>
+      <input type="text" id="struct-fields" value="person_name, date_of_birth, government_id, street_address, phone_number, email_address" />
+      <div class="row" style="margin-top:12px">
+        <div>
+          <label>Threshold</label>
+          <input type="text" id="struct-threshold" value="0.3" style="width:80px" />
+        </div>
+      </div>
+      <button class="run" onclick="runStructured()">Extract</button>
+      <details class="examples">
+        <summary>Try an example</summary>
+        <div class="example-list">
+          <button class="example-btn" onclick="loadStructExample(0)">Vietnam CCCD</button>
+          <button class="example-btn" onclick="loadStructExample(1)">Singapore NRIC</button>
+          <button class="example-btn" onclick="loadStructExample(2)">Thailand ID</button>
+          <button class="example-btn" onclick="loadStructExample(3)">Indonesia NIK</button>
+          <button class="example-btn" onclick="loadStructExample(4)">Mixed PII</button>
+        </div>
+      </details>
+    </div>
+    <div id="struct-result" class="hidden"></div>
+  </div>
+
+  <!-- Relations Panel -->
+  <div class="panel" id="panel-relations">
+    <div class="card">
+      <label>Text</label>
+      <textarea id="rel-text" placeholder="Enter text to extract relations from...">Elon Musk is the CEO of Tesla. Tim Cook leads Apple Inc. Tesla is headquartered in Austin, Texas.</textarea>
+      <div id="rel-defs">
+        <div class="rel-row" style="margin-top:12px">
+          <div class="row">
+            <div><label>Relation name</label><input type="text" class="rel-name" value="ceo_of" /></div>
+            <div style="flex:2"><label>Description <span style="color:var(--muted);font-size:0.7rem">(optional, improves accuracy)</span></label><input type="text" class="rel-desc" value="Leadership relationship where person is chief executive of company" /></div>
+          </div>
+          <div class="row" style="margin-top:4px">
+            <div><label>Head label</label><input type="text" class="rel-head" value="person" /></div>
+            <div><label>Tail label</label><input type="text" class="rel-tail" value="company" /></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <button class="example-btn" onclick="addRelRow()" style="font-size:0.85rem">+ Add relation</button>
+        <div style="flex:1"></div>
+        <label style="margin:0;width:80px">Threshold</label>
+        <input type="text" id="rel-threshold" value="0.3" style="width:80px" />
+      </div>
+      <button class="run" onclick="runRelations()" style="margin-top:12px">Extract Relations</button>
+      <details class="examples">
+        <summary>Try an example</summary>
+        <div class="example-list">
+          <button class="example-btn" onclick="loadRelExample(0)">CEO/Company</button>
+          <button class="example-btn" onclick="loadRelExample(1)">Born in</button>
+          <button class="example-btn" onclick="loadRelExample(2)">Multi-relation</button>
+        </div>
+      </details>
+    </div>
+    <div id="rel-result" class="hidden"></div>
+  </div>
+
+  <!-- NLI Panel -->
+  <div class="panel" id="panel-nli">
+    <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="tab active" onclick="switchNliMode('single')" id="nli-mode-single" style="font-size:0.8rem;padding:4px 12px">Single NLI</button>
+        <button class="tab" onclick="switchNliMode('combined')" id="nli-mode-combined" style="font-size:0.8rem;padding:4px 12px">NER + NLI Combined</button>
+        <button class="tab" onclick="switchNliMode('redaction')" id="nli-mode-redaction" style="font-size:0.8rem;padding:4px 12px">Redaction Verify</button>
+      </div>
+
+      <!-- Single NLI mode -->
+      <div id="nli-single-mode">
+        <label>Premise (the source text / what the user said)</label>
+        <textarea id="nli-premise" placeholder="Enter the premise text...">I have a fever and my mom has diabetes.</textarea>
+        <label style="margin-top:12px">Hypothesis (the claim to verify)</label>
+        <textarea id="nli-hypothesis" placeholder="Enter the hypothesis to check..." style="min-height:50px">User has a fever</textarea>
+        <button class="run" onclick="runNli()">Check Entailment</button>
+        <details class="examples">
+          <summary>Try an example</summary>
+          <div class="example-list">
+            <button class="example-btn" onclick="loadNliExample(0)">Fever attribution (correct)</button>
+            <button class="example-btn" onclick="loadNliExample(1)">Diabetes attribution (wrong person)</button>
+            <button class="example-btn" onclick="loadNliExample(2)">NRIC verification (correct)</button>
+            <button class="example-btn" onclick="loadNliExample(3)">NRIC verification (wrong)</button>
+            <button class="example-btn" onclick="loadNliExample(4)">Address attribution</button>
+            <button class="example-btn" onclick="loadNliExample(5)">Patient A vs B</button>
+            <button class="example-btn" onclick="loadNliExample(6)">Vietnamese</button>
+            <button class="example-btn" onclick="loadNliExample(7)">Medicine for wife</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Combined NER + NLI mode -->
+      <div id="nli-combined-mode" style="display:none">
+        <label>Chat message (will detect PII and attribute to user)</label>
+        <textarea id="nli-chat" placeholder="Enter a chat message...">Hi, I'm John. My NRIC is S9012345B and I live at 123 Orchard Road. My mother's phone is 91234567.</textarea>
+        <label style="margin-top:12px">User name (who is speaking)</label>
+        <input type="text" id="nli-user" value="John" />
+        <button class="run" onclick="runDetectNli()">Detect & Attribute</button>
+        <details class="examples">
+          <summary>Try an example</summary>
+          <div class="example-list">
+            <button class="example-btn" onclick="loadCombinedExample(0)">John's PII + mother's phone</button>
+            <button class="example-btn" onclick="loadCombinedExample(1)">Prescription for husband</button>
+            <button class="example-btn" onclick="loadCombinedExample(2)">Patient A vs B</button>
+            <button class="example-btn" onclick="loadCombinedExample(3)">Vietnamese PII</button>
+          </div>
+        </details>
+      </div>
+      <!-- Redaction verification mode -->
+      <div id="nli-redaction-mode" style="display:none">
+        <label>Text to redact and verify (will detect PII, redact, then check for leaks)</label>
+        <textarea id="redaction-text" placeholder="Enter text with PII...">John called from 91234567. He lives near Orchard Road, Singapore 238879. His NRIC is S9012345B.</textarea>
+        <button class="run" onclick="runVerifyRedaction()">Detect, Redact & Verify</button>
+        <details class="examples">
+          <summary>Try an example</summary>
+          <div class="example-list">
+            <button class="example-btn" onclick="loadRedactionExample(0)">Address leak (partial redaction)</button>
+            <button class="example-btn" onclick="loadRedactionExample(1)">Clean redaction</button>
+            <button class="example-btn" onclick="loadRedactionExample(2)">Multiple PII types</button>
+            <button class="example-btn" onclick="loadRedactionExample(3)">Vietnamese PII</button>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div id="nli-result" class="hidden"></div>
+  </div>
+
+<script>
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ── Tab switching ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── Helpers ──
+function showResult(id, data, ms) {
+  const el = document.getElementById(id);
+  el.className = 'result-box';
+  el.innerHTML = JSON.stringify(data, null, 2);
+  if (ms != null) {
+    el.innerHTML += '\n\n<span class="timing">' + ms + 'ms</span>';
+  }
+}
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.className = 'result-box error';
+  el.textContent = 'Error: ' + msg;
+}
+function showLoading(id) {
+  const el = document.getElementById(id);
+  el.className = 'result-box';
+  el.innerHTML = '<span class="spinner"></span> Running...';
+}
+
+async function apiCall(url, body, resultId) {
+  showLoading(resultId);
+  const t0 = performance.now();
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const ms = Math.round(performance.now() - t0);
+    const data = await res.json();
+    if (!res.ok) {
+      showError(resultId, data.error || data.message || res.statusText);
+    } else {
+      showResult(resultId, data, ms);
+    }
+  } catch (e) {
+    showError(resultId, e.message);
+  }
+}
+
+// ── NER ──
+const nerExamples = [
+  { text: "John Smith lives at 123 Orchard Road, Singapore. His NRIC is S9012345B and email is john@example.com.", labels: "person_name, government_id, email_address, street_address" },
+  { text: "Nguyen Van An, CCCD 012345678901, dien thoai 0912345678, dia chi 45 Nguyen Hue, TP.HCM.", labels: "person_name, government_id, phone_number, street_address" },
+  { text: "คุณสมชาย เลขบัตรประชาชน 1-1001-12345-12-1 โทร 081-234-5678", labels: "person_name, government_id, phone_number" },
+  { text: "Contact me at sarah.lee@company.org or call +65 9123 4567 for the invoice.", labels: "email_address, phone_number, person_name" },
+];
+
+function loadNerExample(i) {
+  document.getElementById('ner-text').value = nerExamples[i].text;
+  document.getElementById('ner-labels').value = nerExamples[i].labels;
+}
+
+function runNer() {
+  const text = document.getElementById('ner-text').value;
+  const labels = document.getElementById('ner-labels').value.split(',').map(s => s.trim()).filter(Boolean);
+  apiCall('/api/detect', { text, labels, threshold: 0.08 }, 'ner-result');
+}
+
+// ── Classification ──
+const clfExamples = [
+  { text: "I need to update my bank account details and change my registered phone number.", labels: "pii_request, general_inquiry, complaint, account_update", multi: false },
+  { text: "Congratulations! You've won a $1000 gift card. Click here to claim now!", labels: "spam, legitimate, phishing, marketing", multi: false },
+  { text: "The restaurant had amazing food but the service was incredibly slow.", labels: "positive, negative, neutral, mixed", multi: false },
+  { text: "SpaceX successfully launched 23 Starlink satellites into orbit early this morning.", labels: "technology, science, business, politics, entertainment, sports", multi: false },
+];
+
+function loadClfExample(i) {
+  document.getElementById('clf-text').value = clfExamples[i].text;
+  document.getElementById('clf-labels').value = clfExamples[i].labels;
+  document.getElementById('clf-multi').checked = clfExamples[i].multi;
+}
+
+function runClassify() {
+  const text = document.getElementById('clf-text').value;
+  const labels = document.getElementById('clf-labels').value.split(',').map(s => s.trim()).filter(Boolean);
+  const multi_label = document.getElementById('clf-multi').checked;
+  apiCall('/api/classify', { text, labels, multi_label }, 'clf-result');
+}
+
+// ── Structured ──
+const structExamples = [
+  { text: "Nguyen Van A, born 15/03/1990, CCCD 012345678901. Address: 123 Le Loi, District 1, Ho Chi Minh City. Phone: 0901234567, email: a.nguyen@gmail.com", schema: "pii_profile", fields: "person_name, date_of_birth, government_id, street_address, phone_number, email_address" },
+  { text: "Tan Ah Kow, NRIC S8712345D, DOB 12 Aug 1987. Lives at Blk 123 Ang Mo Kio Ave 4 #05-678, Singapore 560123. Contact: 91234567, ahkow@hotmail.com", schema: "pii_profile", fields: "person_name, government_id, date_of_birth, street_address, phone_number, email_address" },
+  { text: "Somchai Jaidee, Thai ID 1100700123456, born 5 Jan 1985. Address: 88/1 Sukhumvit Soi 21, Bangkok 10110. Bank account: 123-4-56789-0", schema: "pii_profile", fields: "person_name, government_id, date_of_birth, street_address, bank_account_number" },
+  { text: "Budi Santoso, NIK 3175012345670001, passport A1234567. Address: Jl. Sudirman No. 45, Jakarta 10220. License plate: B 1234 ABC", schema: "pii_profile", fields: "person_name, government_id, passport_number, street_address, license_plate" },
+  { text: "Sarah Lim (S9012345A) and Tran Thi B (CCCD 079200012345) share an office at 1 Raffles Place #20-01, Singapore 048616. Sarah's DOB is 1990-01-15, phone +65 81234567.", schema: "pii_profile", fields: "person_name, government_id, street_address, date_of_birth, phone_number" },
+];
+
+function loadStructExample(i) {
+  document.getElementById('struct-text').value = structExamples[i].text;
+  document.getElementById('struct-schema').value = structExamples[i].schema;
+  document.getElementById('struct-fields').value = structExamples[i].fields;
+}
+
+function runStructured() {
+  const text = document.getElementById('struct-text').value;
+  const schema_name = document.getElementById('struct-schema').value;
+  const fields = document.getElementById('struct-fields').value.split(',').map(s => s.trim()).filter(Boolean);
+  const threshold = parseFloat(document.getElementById('struct-threshold').value) || 0.3;
+  apiCall('/api/extract', { text, schema_name, fields, threshold }, 'struct-result');
+}
+
+// ── Relations ──
+const relExamples = [
+  { text: "Elon Musk is the CEO of Tesla. Tim Cook leads Apple Inc.", rels: [{name:"ceo_of",desc:"Leadership relationship where person is chief executive of company",head:"person",tail:"company"}] },
+  { text: "Barack Obama was born in Honolulu, Hawaii. Angela Merkel was born in Hamburg, Germany.", rels: [{name:"born_in",desc:"Birth place relationship where person was born in location",head:"person",tail:"location"}] },
+  { text: "Elon Musk is the CEO of Tesla. Tim Cook leads Apple Inc. Tesla is headquartered in Austin, Texas.", rels: [{name:"ceo_of",desc:"Leadership relationship where person is chief executive of company",head:"person",tail:"company"},{name:"works_at",desc:"Employment relationship where person works at company",head:"person",tail:"company"},{name:"located_in",desc:"Geographic relationship where company is headquartered in location",head:"company",tail:"location"}] },
+];
+
+function addRelRow(name, desc, head, tail) {
+  const container = document.getElementById('rel-defs');
+  const div = document.createElement('div');
+  div.className = 'rel-row';
+  div.style.marginTop = '8px';
+  div.style.borderTop = '1px solid var(--border)';
+  div.style.paddingTop = '8px';
+  div.innerHTML = '<div class="row"><div><label>Relation name</label><input type="text" class="rel-name" value="'+(name||'')+'" /></div><div style="flex:2"><label>Description</label><input type="text" class="rel-desc" value="'+(desc||'')+'" /></div><div style="display:flex;align-items:end"><button class="example-btn" onclick="this.closest(\'.rel-row\').remove()" style="color:var(--red);margin-bottom:1px">×</button></div></div><div class="row" style="margin-top:4px"><div><label>Head label</label><input type="text" class="rel-head" value="'+(head||'')+'" /></div><div><label>Tail label</label><input type="text" class="rel-tail" value="'+(tail||'')+'" /></div></div>';
+  container.appendChild(div);
+}
+
+function loadRelExample(i) {
+  const ex = relExamples[i];
+  document.getElementById('rel-text').value = ex.text;
+  const container = document.getElementById('rel-defs');
+  container.innerHTML = '';
+  ex.rels.forEach((r, idx) => {
+    const div = document.createElement('div');
+    div.className = 'rel-row';
+    div.style.marginTop = idx === 0 ? '12px' : '8px';
+    if (idx > 0) { div.style.borderTop = '1px solid var(--border)'; div.style.paddingTop = '8px'; }
+    const rmBtn = idx === 0 ? '' : '<div style="display:flex;align-items:end"><button class="example-btn" onclick="this.closest(\'.rel-row\').remove()" style="color:var(--red);margin-bottom:1px">×</button></div>';
+    div.innerHTML = '<div class="row"><div><label>Relation name</label><input type="text" class="rel-name" value="'+r.name+'" /></div><div style="flex:2"><label>Description</label><input type="text" class="rel-desc" value="'+(r.desc||'')+'" /></div>'+rmBtn+'</div><div class="row" style="margin-top:4px"><div><label>Head label</label><input type="text" class="rel-head" value="'+r.head+'" /></div><div><label>Tail label</label><input type="text" class="rel-tail" value="'+r.tail+'" /></div></div>';
+    container.appendChild(div);
+  });
+}
+
+function runRelations() {
+  const text = document.getElementById('rel-text').value;
+  const threshold = parseFloat(document.getElementById('rel-threshold').value) || 0.3;
+  const rows = document.querySelectorAll('.rel-row');
+  const relations = [];
+  rows.forEach(row => {
+    const rn = row.querySelector('.rel-name').value.trim();
+    const desc = row.querySelector('.rel-desc')?.value.trim() || '';
+    const hl = row.querySelector('.rel-head').value.trim();
+    const tl = row.querySelector('.rel-tail').value.trim();
+    if (rn && hl && tl) {
+      const def = {relation_name:rn, head_label:hl, tail_label:tl};
+      if (desc) def.description = desc;
+      relations.push(def);
+    }
+  });
+  if (relations.length === 1) {
+    const r = relations[0];
+    const body = {text, relation_name:r.relation_name, head_label:r.head_label, tail_label:r.tail_label, threshold};
+    if (r.description) body.description = r.description;
+    apiCall('/api/relations', body, 'rel-result');
+  } else {
+    apiCall('/api/relations', {text, relations, threshold}, 'rel-result');
+  }
+}
+
+// ── NLI mode switching ──
+function switchNliMode(mode) {
+  document.getElementById('nli-single-mode').style.display = mode === 'single' ? 'block' : 'none';
+  document.getElementById('nli-combined-mode').style.display = mode === 'combined' ? 'block' : 'none';
+  document.getElementById('nli-redaction-mode').style.display = mode === 'redaction' ? 'block' : 'none';
+  document.getElementById('nli-mode-single').className = mode === 'single' ? 'tab active' : 'tab';
+  document.getElementById('nli-mode-combined').className = mode === 'combined' ? 'tab active' : 'tab';
+  document.getElementById('nli-mode-redaction').className = mode === 'redaction' ? 'tab active' : 'tab';
+}
+
+// ── NLI ──
+const nliExamples = [
+  { premise: "I have a fever and my mom has diabetes.", hypothesis: "User has a fever" },
+  { premise: "I have a fever and my mom has diabetes.", hypothesis: "User has diabetes" },
+  { premise: "My father Mr Loh Kah Heng needs a wheelchair. His IC is T3298765C.", hypothesis: "Mr Loh Kah Heng IC is T3298765C" },
+  { premise: "My father Mr Loh Kah Heng needs a wheelchair. His IC is T3298765C.", hypothesis: "Mr Loh IC is S1234567A" },
+  { premise: "Collecting prescription for my husband Gerard Tan, NRIC S7623456G. We live at Blk 415 Hougang.", hypothesis: "Gerard Tan lives at Blk 415 Hougang" },
+  { premise: "Patient A reports headaches. Patient B has a fever.", hypothesis: "Patient A has a fever" },
+  { premise: "Nguyen Van An bi tieu duong va uong thuoc hang ngay.", hypothesis: "Nguyen Van An bi tieu duong" },
+  { premise: "I'm picking up medicine for my wife Sarah.", hypothesis: "Sarah needs medicine" },
+];
+
+function loadNliExample(i) {
+  document.getElementById('nli-premise').value = nliExamples[i].premise;
+  document.getElementById('nli-hypothesis').value = nliExamples[i].hypothesis;
+}
+
+async function runNli() {
+  const premise = document.getElementById('nli-premise').value;
+  const hypothesis = document.getElementById('nli-hypothesis').value;
+  showLoading('nli-result');
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/nli', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ premise, hypothesis }),
+    });
+    const ms = Math.round(performance.now() - t0);
+    const data = await res.json();
+    if (!res.ok) {
+      showError('nli-result', data.error || data.message || res.statusText);
+      return;
+    }
+    const r = data.result;
+    const el = document.getElementById('nli-result');
+    const barW = 200;
+    const eW = Math.round(r.entailment * barW);
+    const nW = Math.round(r.neutral * barW);
+    const cW = Math.round(r.contradiction * barW);
+    el.className = 'result-box';
+    el.innerHTML = `<span style="font-size:1.1rem;font-weight:600;color:${r.label==='entailment'?'var(--green)':r.label==='contradiction'?'var(--red)':'var(--yellow)'}">${r.label.toUpperCase()}</span>\n\n` +
+      `Entailment:    <span style="color:var(--green)">${(r.entailment*100).toFixed(1)}%</span>  <span style="display:inline-block;height:10px;width:${eW}px;background:var(--green);border-radius:3px;vertical-align:middle"></span>\n` +
+      `Neutral:       <span style="color:var(--yellow)">${(r.neutral*100).toFixed(1)}%</span>  <span style="display:inline-block;height:10px;width:${nW}px;background:var(--yellow);border-radius:3px;vertical-align:middle"></span>\n` +
+      `Contradiction: <span style="color:var(--red)">${(r.contradiction*100).toFixed(1)}%</span>  <span style="display:inline-block;height:10px;width:${cW}px;background:var(--red);border-radius:3px;vertical-align:middle"></span>\n\n` +
+      `<span class="timing">${ms}ms</span>`;
+  } catch (e) {
+    showError('nli-result', e.message);
+  }
+}
+
+// ── Combined NER + NLI ──
+const combinedExamples = [
+  { text: "Hi, I'm John. My NRIC is S9012345B and I live at 123 Orchard Road. My mother's phone is 91234567.", user: "John" },
+  { text: "Collecting prescription for my husband Gerard Tan, NRIC S7623456G. We live at Blk 415 Hougang Ave 10.", user: "Gerard Tan" },
+  { text: "Patient A reports headaches. Patient B has a fever. Patient A's NRIC is S8012345C.", user: "Patient A" },
+  { text: "Toi la Nguyen Van An, CCCD 012345678901. Dia chi cua me toi la 45 Nguyen Hue, TP.HCM.", user: "Nguyen Van An" },
+];
+
+function loadCombinedExample(i) {
+  document.getElementById('nli-chat').value = combinedExamples[i].text;
+  document.getElementById('nli-user').value = combinedExamples[i].user;
+}
+
+async function runDetectNli() {
+  const text = document.getElementById('nli-chat').value;
+  const user_name = document.getElementById('nli-user').value;
+  showLoading('nli-result');
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/detect-nli', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, user_name }),
+    });
+    const ms = Math.round(performance.now() - t0);
+    const data = await res.json();
+    if (!res.ok) {
+      showError('nli-result', data.error || data.message || res.statusText);
+      return;
+    }
+    const el = document.getElementById('nli-result');
+    el.className = 'result-box';
+    let html = `<span style="color:var(--muted)">User: ${data.user}</span>\n\n`;
+    html += `<span style="font-weight:600">Detected PII with attribution:</span>\n\n`;
+    for (const e of data.entities) {
+      const owner = e.belongs_to_user === true ? '✅ belongs to user' :
+                    e.belongs_to_user === false ? '❌ NOT user\'s' : '—';
+      const ownerColor = e.belongs_to_user === true ? 'var(--green)' :
+                         e.belongs_to_user === false ? 'var(--red)' : 'var(--muted)';
+      const entail = e.entailment != null ? ` (${(e.entailment*100).toFixed(0)}%)` : '';
+      html += `  <span style="color:var(--accent)">${e.type.padEnd(22)}</span> <span style="color:var(--text)">${e.value.padEnd(30)}</span> <span style="color:${ownerColor}">${owner}${entail}</span>\n`;
+    }
+    html += `\n<span class="timing">${ms}ms</span>`;
+    el.innerHTML = html;
+  } catch (e) {
+    showError('nli-result', e.message);
+  }
+}
+
+// ── Redaction Verification ──
+const redactionExamples = [
+  { text: "John lives at 123 Orchard Road, Singapore 238879. His phone is 91234567." },
+  { text: "NRIC S9012345B belongs to Mr Tan. Contact him at tan@gmail.com." },
+  { text: "Patient record: Rajesh Kumar, Aadhaar 5184 7296 3057, DOB 15/03/1978, phone +91-9824567310." },
+  { text: "Anh Nguyen Van An, CCCD 012345678901, dia chi 45 Nguyen Hue, TP.HCM, SDT 0901234567." },
+];
+
+function loadRedactionExample(i) {
+  document.getElementById('redaction-text').value = redactionExamples[i].text;
+}
+
+async function runVerifyRedaction() {
+  const text = document.getElementById('redaction-text').value;
+  showLoading('nli-result');
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/api/verify-redaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const ms = Math.round(performance.now() - t0);
+    const data = await res.json();
+    if (!res.ok) {
+      showError('nli-result', data.error || data.message || res.statusText);
+      return;
+    }
+    const el = document.getElementById('nli-result');
+    el.className = 'result-box';
+    const safeColor = data.safe ? 'var(--green)' : 'var(--red)';
+    const safeText = data.safe ? 'SAFE — no leaks detected' : 'UNSAFE — information leaking through redaction';
+    let html = `<span style="font-size:1.1rem;font-weight:600;color:${safeColor}">${safeText}</span>`;
+    if (data.rounds > 1) html += `  <span style="color:var(--dim)">(${data.rounds} rounds of iterative redaction)</span>`;
+    html += `\n\n`;
+    html += `<span style="font-weight:600">Original:</span>\n  ${escHtml(data.original)}\n\n`;
+
+    if (data.history && data.history.length > 1) {
+      for (const round of data.history) {
+        const rColor = round.safe ? 'var(--green)' : 'var(--red)';
+        const rIcon = round.safe ? '✅' : '⚠️';
+        const prevEntities = round.round > 1 ? data.history[round.round - 2].entities.length : 0;
+        const newEntities = round.entities.length - prevEntities;
+        html += `<div style="border-left:3px solid ${rColor};padding:8px 12px;margin:4px 0;background:rgba(255,255,255,0.03);border-radius:0 6px 6px 0">`;
+        html += `<span style="font-weight:600;color:${rColor}">${rIcon} Round ${round.round}</span>`;
+        if (round.round === 2 && newEntities === 0) html += `  <span style="color:var(--dim)">(redacting low-confidence entities)</span>`;
+        else if (round.round > 1 && newEntities > 0) html += `  <span style="color:var(--dim)">(+${newEntities} new entities from lower threshold)</span>`;
+        html += `\n<span style="color:var(--dim)">Redacted:</span> ${escHtml(round.redacted)}\n`;
+        for (const l of round.leaks) {
+          const icon = l.leaking ? '🔴' : '🟢';
+          const status = l.leaking ? 'LEAKING' : 'OK';
+          const lColor = l.leaking ? 'var(--red)' : 'var(--green)';
+          html += `  ${icon} <span style="color:var(--accent)">${escHtml(l.type).padEnd(22)}</span> <span style="color:var(--text)">${escHtml(l.original_value).padEnd(25)}</span> <span style="color:${lColor}">${status}</span> (${(l.entailment*100).toFixed(1)}%)\n`;
+        }
+        html += `</div>`;
+      }
+    } else {
+      html += `<span style="font-weight:600">Redacted:</span>\n  ${escHtml(data.redacted)}\n\n`;
+      if (data.leaks.length > 0) {
+        html += `<span style="font-weight:600">Verification per entity:</span>\n\n`;
+        for (const l of data.leaks) {
+          const icon = l.leaking ? '🔴' : '🟢';
+          const status = l.leaking ? 'LEAKING' : 'OK';
+          const color = l.leaking ? 'var(--red)' : 'var(--green)';
+          html += `  ${icon} <span style="color:var(--accent)">${escHtml(l.type).padEnd(22)}</span> <span style="color:var(--text)">${escHtml(l.original_value).padEnd(25)}</span> <span style="color:${color}">${status}</span> (entailment: ${(l.entailment*100).toFixed(1)}%)\n`;
+        }
+      }
+    }
+    html += `\n<span class="timing">${ms}ms</span>`;
+    el.innerHTML = html;
+  } catch (e) {
+    showError('nli-result', e.message);
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="PII Engineer API documentation. Detect and redact personal data via REST API. Supports 9 PII types in 26+ languages." />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <title>API Docs — PII Engineer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+      :root {
+        --bg: #050810;
+        --bg-1: #0a0f1a;
+        --bg-2: #111827;
+        --border: rgba(59, 130, 246, 0.22);
+        --fg: #f1f5f9;
+        --fg-2: #cbd5e1;
+        --fg-3: #94a3b8;
+        --accent: #3b82f6;
+        --accent-bright: #60a5fa;
+        --green: #34d399;
+        --amber: #fbbf24;
+        --red: #f87171;
+        --radius: 4px;
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.7;
+        padding: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 32px 80px;
+      }
+      .back {
+        display: inline-block;
+        color: var(--fg-3);
+        text-decoration: none;
+        font-family: var(--mono);
+        font-size: 12px;
+        margin-bottom: 32px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .back:hover { color: var(--accent-bright); }
+      h1 {
+        font-family: var(--mono);
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      h1 span { color: var(--accent-bright); }
+      .subtitle {
+        color: var(--fg-3);
+        font-size: 14px;
+        margin-bottom: 48px;
+      }
+      h2 {
+        font-family: var(--mono);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--accent-bright);
+        margin: 48px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      h3 {
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--fg);
+        margin: 32px 0 12px;
+      }
+      p { margin-bottom: 12px; color: var(--fg-2); }
+      strong { color: var(--fg); }
+      code {
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--bg-2);
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: var(--accent-bright);
+      }
+      pre {
+        background: var(--bg-1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        overflow-x: auto;
+        margin: 12px 0 20px;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--fg-2);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 20px;
+        font-size: 13px;
+      }
+      th, td {
+        text-align: left;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      th {
+        background: var(--bg-2);
+        color: var(--fg-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      td { color: var(--fg-2); }
+      .method {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 3px;
+        margin-right: 8px;
+      }
+      .endpoint {
+        font-family: var(--mono);
+        font-size: 15px;
+        color: var(--fg);
+      }
+      .label-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 6px;
+        margin: 12px 0 20px;
+      }
+      .label-item {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--fg-2);
+        padding: 6px 10px;
+        background: var(--bg-1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+      .event-name {
+        color: var(--green);
+        font-weight: 600;
+      }
+      pre[class*="language-"], code[class*="language-"] {
+        background: var(--bg-1) !important;
+        font-size: 12px !important;
+      }
+      pre[class*="language-"] {
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        padding: 16px 20px !important;
+        margin: 12px 0 20px !important;
+      }
+      @media (max-width: 640px) {
+        .container {
+          padding: 24px 14px 60px;
+        }
+        h1 { font-size: 22px; }
+        h2 { font-size: 15px; margin: 32px 0 12px; }
+        pre[class*="language-"] {
+          padding: 12px 10px !important;
+          font-size: 11px !important;
+        }
+        code[class*="language-"] {
+          font-size: 11px !important;
+        }
+        table { font-size: 12px; }
+        td, th { padding: 6px 8px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back">← Back to app</a>
+
+      <h1><span>PII</span> Engineer API</h1>
+      <p class="subtitle">Multilingual PII detection. Single endpoint, JSON response.</p>
+
+      <h2>Endpoint</h2>
+      <p><span class="method">POST</span> <span class="endpoint">/api/detect</span></p>
+
+      <h2>Request</h2>
+      <pre><code class="language-json">POST /api/detect
+Content-Type: application/json
+
+{
+  "text": "John Doe lives at 123 Main St, NRIC S1234567A",
+  "labels": null,
+  "boost": ["government_id", "street_address"]
+}</code></pre>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>text</code></td><td>string</td><td>required</td><td>Text to analyze</td></tr>
+        <tr><td><code>labels</code></td><td>string[]</td><td>null</td><td>Entity types to detect (null = auto-select all)</td></tr>
+        <tr><td><code>boost</code></td><td>string[]</td><td>[]</td><td>Labels to boost for higher accuracy (adds latency per label)</td></tr>
+      </table>
+
+      <h2>Supported Labels</h2>
+      <div class="label-grid">
+        <div class="label-item">person_name</div>
+        <div class="label-item">phone_number</div>
+        <div class="label-item">government_id</div>
+        <div class="label-item">street_address</div>
+        <div class="label-item">date_of_birth</div>
+        <div class="label-item">email_address</div>
+        <div class="label-item">passport_number</div>
+        <div class="label-item">license_plate</div>
+        <div class="label-item">bank_account_number</div>
+      </div>
+
+      <h2>Response</h2>
+      <pre><code class="language-json">{
+  "entities": [
+    {
+      "type": "person_name",
+      "value": "John Doe",
+      "start": 0,
+      "end": 8,
+      "score": 0.99,
+      "needs_review": false
+    },
+    {
+      "type": "government_id",
+      "value": "S1234567A",
+      "start": 15,
+      "end": 24,
+      "score": 0.98,
+      "needs_review": false
+    }
+  ],
+  "redacted": "[PERSON_NAME], NRIC [GOVERNMENT_ID]",
+  "original": "John Doe, NRIC S1234567A"
+}</code></pre>
+      <table>
+        <tr><th>Field</th><th>Description</th></tr>
+        <tr><td><code>entities</code></td><td>Array of detected PII entities with type, value, span, score</td></tr>
+        <tr><td><code>redacted</code></td><td>Text with high-confidence PII replaced by <code>[LABEL]</code> tags</td></tr>
+        <tr><td><code>original</code></td><td>Original input text</td></tr>
+        <tr><td><code>needs_review</code></td><td><code>true</code> if entity score is below auto-redact threshold</td></tr>
+      </table>
+
+      <h2>Accuracy Booster</h2>
+      <p>The <code>boost</code> parameter enables deeper detection for selected labels at the cost of additional latency (~30ms per label).</p>
+      <ul style="color: var(--fg-2); margin: 12px 0 20px; padding-left: 20px">
+        <li>No boost: ~100ms response time</li>
+        <li>1–2 labels boosted: ~130ms</li>
+        <li>All 9 labels boosted: ~300ms</li>
+      </ul>
+      <p>Recommended defaults: <code>government_id</code> and <code>street_address</code> — these benefit most from boosting due to varied formats across countries.</p>
+
+      <h2>Examples</h2>
+      <h3>JavaScript</h3>
+      <pre><code class="language-javascript">const r = await fetch("https://pii.engineer/api/detect", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    text: "John Doe, phone 0123456789",
+    boost: ["government_id", "street_address"],
+  }),
+});
+const data = await r.json();
+console.log(data.redacted);   // "[PERSON_NAME], phone [PHONE_NUMBER]"
+console.log(data.entities);   // [{type, value, start, end, score}, ...]</code></pre>
+
+      <h3>Python</h3>
+      <pre><code class="language-python">import requests
+
+r = requests.post(
+    "https://pii.engineer/api/detect",
+    json={
+        "text": "John Doe, NRIC S1234567A",
+        "boost": ["government_id"],
+    },
+)
+data = r.json()
+print(data["redacted"])   # [PERSON_NAME], NRIC [GOVERNMENT_ID]
+print(data["entities"])   # [{type, value, start, end, score}, ...]</code></pre>
+
+      <h3>cURL</h3>
+      <pre><code class="language-bash">curl -X POST https://pii.engineer/api/detect \
+  -H "Content-Type: application/json" \
+  -d '{"text": "My name is Ahmad, IC T1234567G", "boost": ["government_id"]}'</code></pre>
+
+    </div>
+  </body>
+</html>

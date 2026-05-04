@@ -1,0 +1,2283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Free multilingual PII detection tool. Detect and redact personal data (names, phone numbers, IDs, emails, addresses) in 26+ languages. On-device AI, zero data retention, PDPA-ready."
+    />
+    <meta
+      name="keywords"
+      content="PII detection, PII redaction, personal data, NER, PDPA, data privacy, multilingual, NRIC, free"
+    />
+    <meta name="author" content="PII Engineer" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://pii.engineer/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pii.engineer/" />
+    <meta
+      property="og:title"
+      content="PII Engineer — Multilingual PII Detection"
+    />
+    <meta
+      property="og:description"
+      content="Free on-device AI tool to detect and redact personal data in 26+ languages. Zero data retention, PDPA-ready."
+    />
+    <meta property="og:site_name" content="PII Engineer" />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="PII Engineer — Multilingual PII Detection"
+    />
+    <meta
+      name="twitter:description"
+      content="Free on-device AI tool to detect and redact personal data in 26+ languages. Zero data retention, PDPA-ready."
+    />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      onload="this.rel = 'stylesheet'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    /></noscript>
+    <title>PII Engineer — Free Multilingual PII Detection & Redaction</title>
+    <style>
+      :root {
+        --bg: #050810;
+        --bg-1: #0a0f1a;
+        --bg-2: #111827;
+        --bg-3: #1a2236;
+        --border: rgba(59, 130, 246, 0.22);
+        --border-hover: rgba(59, 130, 246, 0.35);
+        --border-active: rgba(59, 130, 246, 0.55);
+        --glow: rgba(59, 130, 246, 0.08);
+        --glow-strong: rgba(59, 130, 246, 0.15);
+        --fg: #f1f5f9;
+        --fg-2: #cbd5e1;
+        --fg-3: #94a3b8;
+        --accent: #3b82f6;
+        --accent-bright: #60a5fa;
+        --accent-dim: rgba(59, 130, 246, 0.1);
+        --green: #34d399;
+        --green-dim: rgba(52, 211, 153, 0.1);
+        --green-border: rgba(52, 211, 153, 0.3);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.1);
+        --amber-border: rgba(251, 191, 36, 0.3);
+        --red: #f87171;
+        --red-dim: rgba(248, 113, 113, 0.1);
+        --red-border: rgba(248, 113, 113, 0.3);
+        --radius: 4px;
+        --mono:
+          "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+          monospace;
+        --sans:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html, body {
+        overflow-x: hidden;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--fg);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(59, 130, 246, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(59, 130, 246, 0.07) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          ellipse 80% 60% at 50% 0%,
+          rgba(59, 130, 246, 0.18) 0%,
+          transparent 70%
+        );
+      }
+
+      /* ── Navbar ── */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        height: 80px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex: 1;
+      }
+      .navbar-center {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        justify-content: center;
+      }
+      .navbar-logo {
+        font-family: var(--mono);
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg);
+      }
+      .navbar-logo span {
+        color: var(--accent-bright);
+      }
+      .navbar-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border: 1px solid var(--border-active);
+        border-radius: 4px;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--fg-2);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .navbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        justify-content: flex-end;
+      }
+      .navbar-right img {
+        height: 40px;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        white-space: nowrap;
+        border: 1px solid var(--green-border);
+        border-radius: 4px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--green);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .app {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 22px 32px 64px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── Header (below navbar) ── */
+      .header {
+        display: none;
+      }
+
+      /* ── Cards (corner bracket style) ── */
+      .card {
+        background: var(--bg-1);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        position: relative;
+      }
+      .card::before,
+      .card::after {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .card::before {
+        top: -1px;
+        left: -1px;
+        border-top: 2px solid var(--accent-bright);
+        border-left: 2px solid var(--accent-bright);
+      }
+      .card::after {
+        bottom: -1px;
+        right: -1px;
+        border-bottom: 2px solid var(--accent-bright);
+        border-right: 2px solid var(--accent-bright);
+      }
+      .card + .card {
+        margin-top: 12px;
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        z-index: 1;
+      }
+      .card-header h3 {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-bright);
+      }
+      .card-body {
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── Main tabs ── */
+      /* ── Input ── */
+      .input-wrap {
+        position: relative;
+        margin-bottom: 16px;
+        border: 1px solid var(--border);
+        border-radius: 0;
+        background: var(--bg-2);
+      }
+      .input-wrap::before,
+      .input-wrap::after {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .input-wrap::before {
+        top: -1px;
+        left: -1px;
+        border-top: 2px solid var(--accent-bright);
+        border-left: 2px solid var(--accent-bright);
+      }
+      .input-wrap::after {
+        bottom: -1px;
+        right: -1px;
+        border-bottom: 2px solid var(--accent-bright);
+        border-right: 2px solid var(--accent-bright);
+      }
+      textarea {
+        width: 100%;
+        height: 100px;
+        background: var(--bg-2);
+        border: none;
+        border-radius: 0;
+        color: var(--fg);
+        padding: 16px 18px;
+        font-size: 13px;
+        font-family: var(--mono);
+        line-height: 1.7;
+        resize: none;
+        transition: all 0.2s;
+      }
+      textarea:focus {
+        outline: none;
+      }
+      .input-wrap:focus-within {
+        border-color: var(--border-active);
+        box-shadow:
+          0 0 0 2px var(--glow),
+          0 0 15px var(--glow);
+      }
+      textarea::placeholder {
+        color: var(--fg-2);
+        opacity: 0.6;
+      }
+      .input-bottom {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 6px 4px 12px;
+        border-top: 1px solid var(--border);
+      }
+      .char-count {
+        font-size: 10px;
+        color: var(--fg-3);
+        font-family: var(--mono);
+        margin-left: auto;
+      }
+
+      /* ── Samples ── */
+      .samples {
+        margin-bottom: 16px;
+        padding-top: 12px;
+        margin-top: 8px;
+        border-top: 1px solid var(--border);
+      }
+      .samples-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-bright);
+        margin-bottom: 10px;
+      }
+      .sample-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+      }
+      .sample-tab {
+        padding: 8px 16px;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--fg-3);
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .sample-tab:hover {
+        color: var(--fg);
+      }
+      .sample-tab.active {
+        color: var(--accent-bright);
+        border-bottom-color: var(--accent);
+      }
+      .sample-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .sample-chips::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sample-chips::-webkit-scrollbar-thumb {
+        background: var(--bg-3);
+        border-radius: 2px;
+      }
+      .sample-chip {
+        padding: 6px 12px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--fg);
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .sample-chip:hover {
+        color: var(--accent-bright);
+        border-color: var(--border-hover);
+        background: var(--glow);
+        box-shadow: 0 0 12px var(--glow);
+      }
+      .sample-chip.active {
+        color: #fff;
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+      .run-all-chip {
+        color: var(--accent-bright);
+        border-color: var(--border-hover);
+        background: var(--accent-dim);
+        font-weight: 600;
+      }
+      .run-all-chip:hover {
+        background: var(--glow-strong);
+        border-color: var(--border-active);
+      }
+
+      /* ── Batch results ── */
+      .batch-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .batch-item {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--bg-2);
+        overflow: hidden;
+      }
+      .batch-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: var(--bg-3);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg-2);
+      }
+      .batch-item-header .batch-stats {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .batch-item-header .batch-count {
+        color: var(--accent-bright);
+      }
+      .batch-item-header .batch-time {
+        color: var(--fg-3);
+        font-weight: 400;
+      }
+      .batch-item-body {
+        padding: 12px 16px;
+      }
+      .batch-item-body .highlight-text {
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .batch-item .entity-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+      .entity-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        border-radius: 4px;
+        background: var(--bg-3);
+        border: 1px solid var(--border);
+        color: var(--fg-2);
+      }
+      .entity-pill .pill-type {
+        color: var(--accent-bright);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .entity-pill .pill-score {
+        color: var(--fg-3);
+      }
+      .batch-summary {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--fg-2);
+      }
+      .batch-summary .summary-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .batch-summary .summary-val {
+        color: var(--accent-bright);
+        font-weight: 700;
+      }
+
+      /* ── Toolbar ── */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .toolbar .spacer {
+        flex: 1;
+      }
+      .timing {
+        font-size: 11px;
+        color: var(--fg-2);
+        font-family: var(--mono);
+        letter-spacing: 0.03em;
+      }
+      .boost-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0 12px;
+      }
+      .boost-pill {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--fg-3);
+        cursor: pointer;
+        transition: all 0.15s;
+        user-select: none;
+      }
+      .boost-pill:hover {
+        border-color: var(--border-hover);
+        color: var(--fg-2);
+      }
+      .boost-pill.active {
+        background: rgba(245, 158, 11, 0.15);
+        border-color: rgba(245, 158, 11, 0.5);
+        color: #f59e0b;
+      }
+
+      /* ── Buttons ── */
+      .btn {
+        padding: 10px 24px;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .btn:disabled {
+        opacity: 0.35;
+        cursor: wait;
+      }
+      .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        box-shadow:
+          0 0 20px rgba(59, 130, 246, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: #2563eb;
+        box-shadow:
+          0 0 30px rgba(59, 130, 246, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--fg-2);
+        border: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 6px 12px;
+      }
+      .btn-ghost:hover:not(:disabled) {
+        color: var(--accent-bright);
+        border-color: var(--border-hover);
+        background: var(--glow);
+      }
+
+      /* ── Form ── */
+      .field {
+        margin-bottom: 16px;
+      }
+      .field-label {
+        display: block;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent-bright);
+        margin-bottom: 8px;
+      }
+      input[type="text"] {
+        width: 100%;
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--fg);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-family: var(--mono);
+        transition: all 0.2s;
+      }
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--border-active);
+        box-shadow: 0 0 0 3px var(--glow);
+      }
+
+      /* ── Result section ── */
+      .result-section {
+        margin-top: 24px;
+      }
+
+      /* ── Highlight view ── */
+      .highlight-text {
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 2.1;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .pii {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: help;
+      }
+      .pii-auto {
+        background: var(--red-dim);
+        color: var(--red);
+        border: 1px solid var(--red-border);
+      }
+      .pii-review {
+        background: var(--amber-dim);
+        color: var(--amber);
+        border: 1px solid var(--amber-border);
+        border-style: dashed;
+      }
+      .pii-label {
+        font-size: 8px;
+        vertical-align: super;
+        opacity: 0.65;
+        margin-left: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 500;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .pii-replace {
+        font-weight: 700;
+        color: var(--accent-bright);
+        background: var(--accent-dim);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+
+      /* ── View tabs ── */
+      .view-tabs {
+        display: flex;
+        gap: 2px;
+      }
+      .view-tab {
+        padding: 4px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg-2);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .view-tab:hover {
+        color: var(--fg);
+      }
+      .view-tab.active {
+        color: var(--accent-bright);
+        background: var(--accent-dim);
+        border-color: rgba(59, 130, 246, 0.2);
+      }
+
+      /* ── Entity table ── */
+      table.entity-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .entity-table th {
+        text-align: left;
+        padding: 10px 12px;
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--fg-2);
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .entity-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+        vertical-align: middle;
+      }
+      .entity-table tr:last-child td {
+        border-bottom: 0;
+      }
+      .entity-table tr:hover td {
+        background: var(--glow);
+      }
+      .entity-table .val {
+        font-family: var(--mono);
+        font-size: 12px;
+        word-break: break-word;
+        color: var(--fg);
+      }
+      .entity-table .span {
+        color: var(--fg-2);
+        font-family: var(--mono);
+        font-size: 10px;
+      }
+      .tag {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .tag-auto {
+        background: var(--green-dim);
+        color: var(--green);
+        border: 1px solid var(--green-border);
+      }
+      .tag-review {
+        background: var(--amber-dim);
+        color: var(--amber);
+        border: 1px solid var(--amber-border);
+      }
+      .score-bar {
+        display: inline-block;
+        width: 52px;
+        height: 4px;
+        background: var(--bg-3);
+        border-radius: 2px;
+        overflow: hidden;
+        vertical-align: middle;
+        margin-left: 8px;
+      }
+      .score-fill {
+        display: block;
+        height: 100%;
+        border-radius: 2px;
+      }
+      .score-fill.high {
+        background: var(--green);
+        box-shadow: 0 0 6px rgba(52, 211, 153, 0.3);
+      }
+      .score-fill.mid {
+        background: var(--amber);
+        box-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
+      }
+      .score-fill.low {
+        background: var(--red);
+        box-shadow: 0 0 6px rgba(248, 113, 113, 0.3);
+      }
+
+      /* ── Loading ── */
+      .loading {
+        padding: 40px;
+        text-align: center;
+      }
+      .loading-bar {
+        width: 200px;
+        height: 2px;
+        background: var(--bg-3);
+        border-radius: 1px;
+        overflow: hidden;
+        margin: 16px auto;
+      }
+      .loading-bar::after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 40%;
+        background: var(--accent);
+        border-radius: 1px;
+        box-shadow: 0 0 10px var(--accent);
+        animation: slide 1.2s ease infinite;
+      }
+      @keyframes slide {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(350%);
+        }
+      }
+      .loading-text {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--fg-3);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      /* ── Error ── */
+      .error-box {
+        padding: 14px 18px;
+        background: var(--red-dim);
+        color: var(--red);
+        border: 1px solid var(--red-border);
+        border-radius: var(--radius);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      /* ── Empty ── */
+      .empty {
+        color: var(--fg-3);
+        font-style: italic;
+        padding: 20px 0;
+        text-align: center;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      /* ── Toast ── */
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--accent);
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.25s;
+        box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+        z-index: 100;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── Modal ── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.88);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.1s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-panel {
+        width: 100%;
+        max-width: 960px;
+        max-height: 80vh;
+        overflow-y: auto;
+        background: var(--bg-1);
+        border: 1px solid var(--border-hover);
+        border-radius: var(--radius);
+        padding: 0;
+        position: relative;
+        transform: scale(0.98) translateY(8px);
+        opacity: 0;
+        transition:
+          transform 0.1s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.1s;
+        box-shadow:
+          0 16px 48px rgba(0, 0, 0, 0.5),
+          0 0 60px rgba(59, 130, 246, 0.13);
+        margin: 24px;
+      }
+      .modal-bar,
+      .modal-body {
+        position: relative;
+        z-index: 1;
+      }
+      .modal-overlay.open .modal-panel {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+      .modal-bar {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--bg-1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-bar h3 {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--fg);
+      }
+      .modal-close {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--bg-2);
+        color: var(--fg-3);
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .modal-close:hover {
+        color: var(--fg);
+        border-color: var(--border-hover);
+        background: var(--bg-3);
+      }
+      .modal-body {
+        padding: 20px 24px 32px;
+      }
+      @media (max-width: 640px) {
+        .modal-panel {
+          max-height: 95vh;
+          margin: 8px;
+        }
+        .modal-bar {
+          padding: 12px 12px 10px;
+        }
+        .modal-body {
+          padding: 12px;
+        }
+        .modal-body .card-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          padding: 10px 12px;
+        }
+        .modal-body .actions {
+          flex-wrap: wrap !important;
+          gap: 6px !important;
+        }
+        .modal-body .view-tabs {
+          flex-wrap: wrap;
+        }
+        .modal-body .view-tab {
+          padding: 3px 7px;
+          font-size: 9px;
+        }
+        .modal-body .btn-ghost {
+          font-size: 9px;
+          padding: 4px 8px;
+        }
+        .modal-body .card-body {
+          padding: 10px;
+        }
+        .modal-body .entity-table {
+          font-size: 11px;
+        }
+        .modal-body .entity-table th,
+        .modal-body .entity-table td {
+          padding: 8px 6px;
+        }
+        .modal-body .highlight-text {
+          font-size: 14px;
+          line-height: 1.8;
+        }
+      }
+
+      /* ── JSON view ── */
+      .json-view {
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+        color: var(--fg-2);
+      }
+      .json-view .jk {
+        color: var(--accent-bright);
+      }
+      .json-view .js {
+        color: var(--green);
+      }
+      .json-view .jn {
+        color: var(--amber);
+      }
+      .json-view .jb {
+        color: var(--red);
+        font-weight: 600;
+      }
+      .json-view .jnull {
+        color: var(--fg-3);
+        font-style: italic;
+      }
+
+      /* ── Example chips ── */
+      .example-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .example-chip {
+        padding: 5px 12px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        color: var(--fg-2);
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .example-chip:hover {
+        color: var(--accent-bright);
+        border-color: var(--border-hover);
+        background: var(--glow);
+      }
+
+      /* ── Footer ── */
+      .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 12px 40px;
+        background: rgba(5, 8, 16, 0.92);
+        backdrop-filter: blur(16px);
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--fg-2);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .footer .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .footer .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 0 16px;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          gap: 8px;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+        .navbar-left {
+          flex: 0 1 auto;
+          min-width: 0;
+        }
+        .navbar-logo {
+          font-size: 20px;
+        }
+        .navbar-badge {
+          display: none;
+        }
+        .navbar-center {
+          display: none;
+        }
+        .navbar-right {
+          flex: 0 1 auto;
+          min-width: 0;
+          gap: 6px;
+        }
+        .navbar-right img {
+          height: 24px;
+        }
+        .app {
+          padding: 20px 12px 120px;
+        }
+        .card-header {
+          padding: 10px 14px;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .card-body {
+          padding: 14px;
+        }
+        .toolbar {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        textarea {
+          word-break: break-word;
+        }
+        .sample-tabs {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .sample-tab {
+          padding: 8px 10px;
+          font-size: 10px;
+        }
+        .sample-chip {
+          font-size: 10px;
+          padding: 5px 10px;
+        }
+        .boost-pill {
+          font-size: 9px;
+          padding: 3px 8px;
+        }
+        .footer {
+          padding: 12px 16px;
+          gap: 6px 14px;
+          justify-content: center;
+        }
+        .footer .chip {
+          font-size: 9px;
+        }
+        .footer-links {
+          position: static !important;
+          left: auto !important;
+          transform: none !important;
+          width: 100%;
+          justify-content: center;
+        }
+        .footer .status-pill {
+          display: none;
+        }
+        .footer .copyright {
+          display: none;
+        }
+      }
+      @media (max-width: 480px) {
+        .navbar-left {
+          gap: 8px;
+        }
+        .navbar-logo {
+          font-size: 17px;
+        }
+        .navbar-right {
+          width: auto;
+        }
+        .navbar-right img {
+          height: 20px;
+        }
+        .app {
+          padding: 16px 10px 130px;
+        }
+        #detect-input {
+          font-size: 12px !important;
+          min-height: 100px !important;
+        }
+        .btn {
+          font-size: 11px;
+          padding: 8px 16px;
+        }
+        .sample-tab {
+          padding: 6px 8px;
+          font-size: 9px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <a
+          href="/"
+          class="navbar-logo"
+          style="text-decoration: none; color: var(--fg)"
+          ><span>PII</span> Engineer</a
+        >
+      </div>
+      <div class="navbar-center">
+        <div class="status-pill">🛡 Zero data retention</div>
+        <div class="status-pill">
+          <span class="status-dot" style="width: 5px; height: 5px"></span> 🇸🇬
+          SGP1 · Local inference
+        </div>
+        <a href="https://github.com/gantz-ai/pii.engineer" target="_blank" rel="noopener" class="status-pill" style="text-decoration: none; color: var(--green);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="https://huggingface.co/pii-engineer" target="_blank" rel="noopener" class="status-pill" style="text-decoration: none; color: var(--green);">
+          <img src="https://huggingface.co/favicon.ico" width="14" height="14" alt="HF" style="vertical-align: middle;">
+          HuggingFace
+        </a>
+      </div>
+      <div class="navbar-right">
+        <a href="https://pilotpulse.ai/" target="_blank" rel="noopener"
+          ><img src="/static/pilotpulse_landscape.png?v=2" alt="PilotPulse.ai"
+        /></a>
+      </div>
+    </nav>
+    <main class="app">
+      <!-- ═══════════ PII DETECTION ═══════════ -->
+      <div id="panel-detect">
+        <div style="text-align: center; margin-bottom: 24px">
+          <img
+            src="/static/banner.png"
+            alt="PII Engineer — Multilingual PII Detection"
+            fetchpriority="high"
+            width="280"
+            height="181"
+            style="max-width: 280px; width: 100%; height: auto; opacity: 0.85"
+          />
+        </div>
+        <div class="input-wrap">
+          <textarea
+            id="detect-input"
+            rows="3"
+            placeholder="Paste text here to detect PII..."
+            spellcheck="false"
+          ></textarea>
+          <div class="input-bottom">
+            <span class="timing" id="detect-timing"></span>
+            <div class="char-count" id="detect-char-count">0</div>
+            <button
+              class="btn btn-primary"
+              id="detect-btn"
+              onclick="runDetect()"
+              style="padding: 8px 20px; font-size: 11px"
+            >
+              Detect
+            </button>
+          </div>
+        </div>
+        <div
+          style="
+            font-family: var(--mono);
+            font-size: 10px;
+            color: #f59e0b;
+            letter-spacing: 0.04em;
+            padding: 12px 0 2px;
+            margin-top: 8px;
+            border-top: 1px solid var(--border);
+          "
+        >
+          ACCURACY BOOSTER
+          <span style="color: var(--fg-3)"
+            >— select labels for deeper detection (slower)</span
+          >
+        </div>
+        <div class="boost-bar" id="boost-bar">
+          <button
+            class="boost-pill"
+            data-label="person_name"
+            onclick="toggleBoost(this)"
+          >
+            Person Name
+          </button>
+          <button
+            class="boost-pill"
+            data-label="phone_number"
+            onclick="toggleBoost(this)"
+          >
+            Phone Number
+          </button>
+          <button
+            class="boost-pill"
+            data-label="government_id"
+            onclick="toggleBoost(this)"
+          >
+            Government ID
+          </button>
+          <button
+            class="boost-pill"
+            data-label="street_address"
+            onclick="toggleBoost(this)"
+          >
+            Street Address
+          </button>
+          <button
+            class="boost-pill"
+            data-label="date_of_birth"
+            onclick="toggleBoost(this)"
+          >
+            Date of Birth
+          </button>
+          <button
+            class="boost-pill"
+            data-label="email_address"
+            onclick="toggleBoost(this)"
+          >
+            Email Address
+          </button>
+          <button
+            class="boost-pill"
+            data-label="passport_number"
+            onclick="toggleBoost(this)"
+          >
+            Passport Number
+          </button>
+          <button
+            class="boost-pill"
+            data-label="license_plate"
+            onclick="toggleBoost(this)"
+          >
+            License Plate
+          </button>
+          <button
+            class="boost-pill"
+            data-label="bank_account_number"
+            onclick="toggleBoost(this)"
+          >
+            Bank Account
+          </button>
+        </div>
+        <div class="samples" id="detect-samples"></div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span class="chip"
+        ><span class="dot" style="background: var(--accent)"></span>
+        multi-ner</span
+      >
+      <span class="chip"
+        ><span class="dot" style="background: var(--amber)"></span>
+        chinese-ner</span
+      >
+      <div
+        class="footer-links"
+        style="
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 16px;
+          font-family: var(--mono);
+          font-size: 10px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        "
+      >
+        <a
+          href="/static/docs.html"
+          style="color: var(--muted); text-decoration: none"
+          >Docs</a
+        >
+        <span style="color: var(--fg)">·</span>
+        <a
+          href="/static/blog.html"
+          style="color: var(--muted); text-decoration: none"
+          >Blog</a
+        >
+        <span style="color: var(--fg)">·</span>
+        <a
+          href="#"
+          onclick="
+            document.getElementById('privacy-modal').style.display = 'flex';
+            return false;
+          "
+          style="color: var(--muted); text-decoration: none"
+          >Privacy</a
+        >
+        <span style="color: var(--fg)">·</span>
+        <a
+          href="#"
+          onclick="
+            document.getElementById('tos-modal').style.display = 'flex';
+            return false;
+          "
+          style="color: var(--muted); text-decoration: none"
+          >Terms</a
+        >
+      </div>
+      <span
+        class="copyright"
+        style="
+          margin-left: auto;
+          font-family: var(--mono);
+          font-size: 10px;
+          color: var(--fg-2);
+          letter-spacing: 0.04em;
+        "
+        >🐬 Copyright 2026 PilotPulse.ai</span
+      >
+    </footer>
+
+    <div id="toast" class="toast"></div>
+
+    <div
+      id="privacy-modal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.88);
+        align-items: center;
+        justify-content: center;
+      "
+      onclick="if (event.target === this) this.style.display = 'none';"
+    >
+      <div
+        style="
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          max-width: 600px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          padding: 32px;
+          color: var(--fg);
+          font-family: var(--mono);
+          font-size: 13px;
+          line-height: 1.7;
+        "
+      >
+        <h2
+          style="margin: 0 0 20px; font-size: 16px; color: var(--accent-bright)"
+        >
+          Privacy Policy
+        </h2>
+        <p>
+          PII Engineer is committed to protecting your privacy. This policy
+          explains how we handle data when you use our service.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          1. Data Processing
+        </h3>
+        <p>
+          <strong>No data retention.</strong> Text you submit is processed
+          entirely in memory (RAM) and is immediately discarded after the
+          response is sent. We do not write your input to any disk, database,
+          file system, or persistent storage at any point during or after
+          processing.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          2. No Third-Party Data Sharing
+        </h3>
+        <p>
+          All inference (Named Entity Recognition and Natural Language
+          Inference) runs locally on our own server. Your data is
+          <strong>never</strong> sent to any external API, cloud AI service, or
+          third-party processor. We do not use OpenAI, Google, AWS, or any other
+          external service to process your text.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          3. No Tracking or Analytics
+        </h3>
+        <p>
+          We do not use cookies, tracking pixels, analytics services, or any
+          form of user identification. We do not collect IP addresses, browser
+          fingerprints, or usage patterns. There are no user accounts or login
+          systems. We have no way to identify who is using the service.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          4. Server Logging
+        </h3>
+        <p>
+          Our server logs contain only operational metadata: HTTP status codes,
+          response times, and error codes.
+          <strong>Input text is never included in logs.</strong> Logs are
+          retained for a maximum of 7 days for debugging purposes and are
+          automatically deleted after that period.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          5. Server Location
+        </h3>
+        <p>
+          Our server is hosted on DigitalOcean in the Singapore (SGP1) region.
+          All data processing occurs within this single server. Data does not
+          leave this server or cross jurisdictional boundaries during
+          processing.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          6. Security
+        </h3>
+        <p>
+          All connections are encrypted with TLS (HTTPS). The server runs on
+          dedicated infrastructure with automatic security updates. Access to
+          the server is restricted to SSH key-based authentication only.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          7. Changes to This Policy
+        </h3>
+        <p>
+          We may update this policy from time to time. Changes will be reflected
+          in the "Last updated" date below. Continued use of the service
+          constitutes acceptance of any changes.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          8. Contact
+        </h3>
+        <p>
+          If you have questions about this privacy policy or our data practices,
+          contact us at <strong>techadmin@pilotpulse.ai</strong>.
+        </p>
+        <p style="margin-top: 24px; color: var(--muted); font-size: 11px">
+          Last updated: May 2026
+        </p>
+        <button
+          onclick="this.closest('#privacy-modal').style.display = 'none'"
+          style="
+            margin-top: 16px;
+            width: 100%;
+            padding: 8px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          "
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="tos-modal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.88);
+        align-items: center;
+        justify-content: center;
+      "
+      onclick="if (event.target === this) this.style.display = 'none';"
+    >
+      <div
+        style="
+          background: var(--card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          max-width: 600px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          padding: 32px;
+          color: var(--fg);
+          font-family: var(--mono);
+          font-size: 13px;
+          line-height: 1.7;
+        "
+      >
+        <h2
+          style="margin: 0 0 20px; font-size: 16px; color: var(--accent-bright)"
+        >
+          Terms of Use
+        </h2>
+        <p>
+          By using PII Engineer, you agree to the following terms. If you do not
+          agree, please do not use the service.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          1. Service Description
+        </h3>
+        <p>
+          PII Engineer is a free, web-based tool that detects personally
+          identifiable information (PII) in text using machine learning models.
+          The service provides entity detection (NER) to identify personally
+          identifiable information in text.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          2. No Warranty
+        </h3>
+        <p>
+          This service is provided <strong>"as-is"</strong> without any
+          warranties, express or implied. We do not guarantee the accuracy,
+          completeness, or reliability of PII detection results. False positives
+          (flagging non-PII as PII) and false negatives (missing actual PII) may
+          occur.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          3. Not Legal or Compliance Advice
+        </h3>
+        <p>
+          PII Engineer is a detection tool, not a substitute for professional
+          legal, compliance, or data protection advice. Results should not be
+          relied upon as the sole basis for regulatory compliance decisions
+          under PDPA, GDPR, CCPA, or any other data protection legislation.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          4. User Responsibility
+        </h3>
+        <p>
+          You are solely responsible for: (a) the text you submit to the
+          service, (b) ensuring you have the right to process that text, (c) how
+          you use the detection results, and (d) compliance with all applicable
+          data protection laws in your jurisdiction.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          5. Acceptable Use
+        </h3>
+        <p>
+          You agree not to: (a) use the service for any unlawful purpose, (b)
+          attempt to reverse-engineer, disassemble, or extract the underlying
+          models, (c) use automated tools to make excessive requests that
+          degrade service quality for others, or (d) misrepresent the service's
+          output as certified or legally binding.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          6. Limitation of Liability
+        </h3>
+        <p>
+          To the maximum extent permitted by law, we shall not be liable for any
+          direct, indirect, incidental, consequential, or special damages
+          arising from your use of, or inability to use, the service — including
+          but not limited to damages from undetected PII, data breaches, or
+          regulatory penalties.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          7. Service Availability
+        </h3>
+        <p>
+          We reserve the right to modify, suspend, or discontinue the service at
+          any time without prior notice or liability. We do not guarantee uptime
+          or availability. Scheduled and unscheduled maintenance may occur.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          8. Changes to Terms
+        </h3>
+        <p>
+          We may update these terms at any time. Changes take effect immediately
+          upon being posted. Continued use of the service after changes
+          constitutes acceptance of the updated terms.
+        </p>
+        <h3 style="margin: 20px 0 8px; font-size: 13px; color: var(--fg)">
+          9. Contact
+        </h3>
+        <p>
+          For questions about these terms, contact us at
+          <strong>techadmin@pilotpulse.ai</strong>.
+        </p>
+        <p style="margin-top: 24px; color: var(--muted); font-size: 11px">
+          Last updated: May 2026
+        </p>
+        <button
+          onclick="this.closest('#tos-modal').style.display = 'none'"
+          style="
+            margin-top: 16px;
+            width: 100%;
+            padding: 8px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          "
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="modal-overlay"
+      id="result-modal"
+      onclick="if (event.target === this) closeModal();"
+    >
+      <div class="modal-panel">
+        <div class="modal-bar">
+          <h3 id="modal-title">Detection Result</h3>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span
+              class="timing"
+              id="modal-timing"
+              style="font-size: 10px"
+            ></span>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+          </div>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+      </div>
+    </div>
+
+    <script>
+      const SAMPLE_GROUPS = [
+        {
+          label: "English",
+          items: [
+            [
+              "Name + DOB",
+              "Good morning, my name is Cheryl Ong Hui Min. I was born on 27 September 1983. Can I check my test results?",
+            ],
+            [
+              "Contact + NRIC",
+              "HP is 8433 2109. NRIC S7845123F. Need to update my particulars, thanks.",
+            ],
+            [
+              "Casual full PII",
+              "Bro it's Frank here, DOB 18 June 1991. Call me at 92108765, staying at 5 Jalan Besar now.",
+            ],
+            [
+              "Elderly parent",
+              "My father Mr Loh Kah Heng needs a wheelchair. His IC is T3298765C, born 9 April 1945. Address is Blk 77 Redhill Close #02-118.",
+            ],
+            [
+              "Spouse pickup",
+              "Collecting prescription for my husband — Gerard Tan Boon Leong, NRIC S7623456G, DOB 29 July 1976. We live at Blk 415 Hougang Ave 10 #06-321.",
+            ],
+            [
+              "Email signoff",
+              "Best, Marcus Lim · marcus.lim@dbs.com.sg · +65 9123 4567",
+            ],
+            [
+              "Insurance claim",
+              "Policyholder: Vincent Sim Wei Liang, NRIC S8123456C, DOB 14 Feb 1988. Claim filed for car SBA9988X. Contact 9876 5432, vincent.sim@aia.com.",
+            ],
+            [
+              "Hospital admission",
+              "Patient Mdm Goh Sok Hoon, IC S5421987A, DOB 03/05/1962, admitted to Ward 9B Bed 4. Next-of-kin: son Goh Wei Ming, mobile 81234567, address Blk 234 Bishan St 22 #12-345.",
+            ],
+            [
+              "Singlish casual",
+              "Eh bro, my IC S8345678D leh, born 1987. Stay at Blk 234 Tampines St 21 #08-456. HP is 91234567.",
+            ],
+          ],
+        },
+        {
+          label: "Malay",
+          items: [
+            [
+              "Pakcik appointment",
+              "Pakcik Idris (IC S4185296P) nak buat appointment esok pagi. Phone 9234 5678.",
+            ],
+            [
+              "Nenek pickup",
+              "Nenek Salmah mau ambil ubat. IC dia S4521987A, umur 78. Alamat Blk 88 Bedok North #03-456.",
+            ],
+          ],
+        },
+        {
+          label: "Chinese",
+          items: [
+            [
+              "Full PII",
+              "患者陈丽华，身份证号码S4521987A，出生日期1960年3月15日。地址：大巴窑1巷第234座#05-678。联系电话92345678。",
+            ],
+            [
+              "Bilingual KYC",
+              "DBS new account: 黄志强 (Mr Wong Chee Keong), NRIC S6789012A, 出生1968年8月12日。",
+            ],
+          ],
+        },
+        {
+          label: "Hindi",
+          items: [
+            [
+              "आधार + पता",
+              "मरीज़ राजेश कुमार, आधार 5184 7296 3057, जन्मतिथि 15/03/1978। पता: 42 एमजी रोड, बेंगलुरु 560001। फ़ोन +91-9824567310।",
+            ],
+            [
+              "अस्पताल रिकॉर्ड",
+              "भर्ती: श्रीमती लक्ष्मी देवी, पति सुरेश पटेल, आधार 9283 4567 1234, जन्मतिथि 22/08/1965। आपातकालीन संपर्क: बेटा अमित पटेल, +91 8012345678।",
+            ],
+            [
+              "KYC bilingual",
+              "Customer: प्रिया शर्मा (Priya Sharma), Aadhaar 7654 3210 9876, mobile 98765 43210, email priya.sharma@infosys.com।",
+            ],
+          ],
+        },
+        {
+          label: "Tamil",
+          items: [
+            [
+              "ஆதார் + முகவரி",
+              "நோயாளி முருகன் குமார், ஆதார் 6543 2109 8765, பிறந்த தேதி 12/06/1985। முகவரி: 15 அண்ணா சாலை, சென்னை 600002। தொலைபேசி +91-9876543210।",
+            ],
+            [
+              "மருத்துவமனை",
+              "அனுமதி: திருமதி கமலா தேவி, கணவர் ராஜா செல்வம், ஆதார் 4321 8765 2109, பிறந்த தேதி 08/11/1970। அவசர தொடர்பு: மகன் கார்த்திக், +91 7012345678।",
+            ],
+          ],
+        },
+        {
+          label: "Thai",
+          items: [
+            [
+              "บัตรประชาชน",
+              "ผู้ป่วยสมชาย วงศ์สวัสดิ์ เลขบัตรประชาชน 1-1234-56789-01-2 เกิด 15/03/2521 ที่อยู่ 88/5 ซอยสุขุมวิท 31 แขวงคลองตันเหนือ กรุงเทพ 10110 โทร 081-234-5678",
+            ],
+            [
+              "โรงพยาบาล",
+              "รับเข้า: นางสาวพิมพ์ใจ แสงทอง บัตร ปชช 3-1005-12345-67-8 วันเกิด 22/08/2533 ติดต่อฉุกเฉิน: แม่ นางสมศรี โทร 089-876-5432",
+            ],
+          ],
+        },
+        {
+          label: "Vietnamese",
+          items: [
+            [
+              "CCCD",
+              "Anh Nguyễn Văn An, CCCD 012345678901, địa chỉ 45 Nguyễn Huệ, TP.HCM, SĐT 0901234567.",
+            ],
+            [
+              "Bệnh viện",
+              "Bệnh nhân Trần Thị Mai, CCCD 079200123456, sinh ngày 15/03/1990. Địa chỉ: 123 Lê Lợi, Quận 1.",
+            ],
+          ],
+        },
+        {
+          label: "Edge cases",
+          items: [
+            [
+              "No PII",
+              "Reminder: the office will be closed on public holidays. Have a great weekend everyone!",
+            ],
+            [
+              "Healthcare numbers",
+              "BP 150/90, HbA1c 7.4%, Ward 5A Bed 12, MRN 12345678. All within normal range.",
+            ],
+            [
+              "Order ID",
+              "Order #87654321 dispatched today. Tracking ref: SF-2024-9988-X. Delivery 3-5 business days.",
+            ],
+            [
+              "Mixed real + lookalike",
+              "Patient Tan Wei Ming (IC S8901234D), MRN 87654321, Ward 5A Bed 12. Phone 9123 4567.",
+            ],
+          ],
+        },
+      ];
+
+      let lastData = null,
+        lastInput = "",
+        currentView = "highlight";
+
+      function toggleBoost(el) {
+        el.classList.toggle("active");
+      }
+      function getBoostLabels() {
+        return [...document.querySelectorAll(".boost-pill.active")].map(
+          (b) => b.dataset.label,
+        );
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        requestIdleCallback(() => fetch("/api/health").catch(() => {}));
+        buildSamples();
+        const inp = document.getElementById("detect-input");
+        const cc = document.getElementById("detect-char-count");
+        const defaultText =
+          "My name is Sarah Tan, NRIC S9812345A. Please call me at 9123 4567 or email sarah@gmail.com. I stay at 12 Orchard Road #05-01 Singapore 238888.";
+        inp.value = defaultText;
+        cc.textContent = defaultText.length.toLocaleString();
+        inp.addEventListener("input", () => {
+          cc.textContent = inp.value.length.toLocaleString();
+          document
+            .querySelectorAll(".sample-chip.active")
+            .forEach((c) => c.classList.remove("active"));
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeModal();
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            if (document.querySelector("#panel-detect.active")) runDetect();
+          }
+        });
+      });
+
+      let activeSG = 0;
+      function buildSamples() {
+        const el = document.getElementById("detect-samples");
+        el.innerHTML = `<div class="samples-label">Try it yourself</div><div class="sample-tabs">${SAMPLE_GROUPS.map((g, i) => `<button class="sample-tab ${i === 0 ? "active" : ""}" onclick="selectSG(${i})">${g.label}</button>`).join("")}</div><div class="sample-chips" id="sample-chips"></div>`;
+        renderChips(0);
+      }
+      function selectSG(i) {
+        activeSG = i;
+        document
+          .querySelectorAll("#detect-samples .sample-tab")
+          .forEach((t, j) => t.classList.toggle("active", i === j));
+        renderChips(i);
+      }
+      function renderChips(gi) {
+        document.getElementById("sample-chips").innerHTML =
+          SAMPLE_GROUPS[gi].items
+            .map(
+              (item, j) =>
+                `<button class="sample-chip" title="${esc(item[1])}" onclick="loadSample(${gi},${j})">${esc(item[0])}</button>`,
+            )
+            .join("") +
+          `<button class="sample-chip run-all-chip" onclick="runAllSamples(${gi})">Run All ▶</button>`;
+      }
+      function loadSample(gi, ii) {
+        const t = SAMPLE_GROUPS[gi].items[ii][1];
+        document.getElementById("detect-input").value = t;
+        document.getElementById("detect-char-count").textContent =
+          t.length.toLocaleString();
+        document
+          .querySelectorAll(".sample-chip")
+          .forEach((c, j) => c.classList.toggle("active", j === ii));
+      }
+
+      async function runAllSamples(gi) {
+        const group = SAMPLE_GROUPS[gi];
+        const mb = document.getElementById("modal-body"),
+          mt = document.getElementById("modal-timing");
+        openModal("Run All — " + group.label);
+        mb.innerHTML = `<div class="batch-summary"><span class="summary-stat">Running <span class="summary-val">${group.items.length}</span> samples...</span></div><div class="batch-grid">${group.items.map((_, i) => `<div class="batch-item" id="batch-${i}"><div class="batch-item-header"><span>${esc(group.items[i][0])}</span><div class="batch-stats"><span class="batch-time">pending...</span></div></div><div class="batch-item-body"><div class="loading" style="padding:16px"><div class="loading-bar"></div></div></div></div>`).join("")}</div>`;
+        const t0 = performance.now();
+        let totalEnts = 0;
+        const results = [];
+        for (let i = 0; i < group.items.length; i++) {
+          const item = group.items[i];
+          const text = item[1],
+            st = performance.now();
+          try {
+            const r = await fetch("/api/detect", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text }),
+            });
+            if (!r.ok) {
+              const dt = Math.round(performance.now() - st);
+              renderBatchItem(i, item[0], text, null, dt, "error");
+              results.push(null);
+              continue;
+            }
+            const d = await r.json();
+            const dt = Math.round(performance.now() - st);
+            if (d.entities) d.entities = fixEntOffsets(text, d.entities);
+            renderBatchItem(i, item[0], text, d, dt, "ok");
+            totalEnts += (d.entities || []).length;
+            results.push(d);
+          } catch (e) {
+            renderBatchItem(i, item[0], text, null, 0, "error");
+            results.push(null);
+          }
+        }
+        const totalTime = Math.round(performance.now() - t0);
+        mt.textContent = totalTime + " ms";
+        document.querySelector(".batch-summary").innerHTML = `
+    <span class="summary-stat">Samples <span class="summary-val">${group.items.length}</span></span>
+    <span class="summary-stat">Entities found <span class="summary-val">${totalEnts}</span></span>
+    <span class="summary-stat">Total <span class="summary-val">${totalTime} ms</span></span>`;
+      }
+      function renderBatchItem(i, label, text, data, ms, status) {
+        const el = document.getElementById("batch-" + i);
+        if (!el) return;
+        const ents = data?.entities || [];
+        const pills = ents
+          .map(
+            (e) =>
+              `<span class="entity-pill"><span class="pill-type">${esc(e.type)}</span><span>${esc(e.value)}</span><span class="pill-score">${Math.round(e.score * 100)}%</span></span>`,
+          )
+          .join("");
+        el.innerHTML = `
+    <div class="batch-item-header"><span>${esc(label)}</span><div class="batch-stats"><span class="batch-count">${ents.length} entities</span><span class="batch-time">${ms} ms</span></div></div>
+    <div class="batch-item-body"><div class="highlight-text">${status === "ok" ? buildHighlighted(text, ents, false) : `<span class="error-box">Detection failed</span>`}</div>${pills ? `<div class="entity-pills">${pills}</div>` : ""}</div>`;
+      }
+
+      function esc(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+      function toast(m) {
+        const t = document.getElementById("toast");
+        t.textContent = m;
+        t.classList.add("show");
+        clearTimeout(window._tt);
+        window._tt = setTimeout(() => t.classList.remove("show"), 1800);
+      }
+      function scoreClass(s) {
+        return s >= 0.5 ? "high" : s >= 0.3 ? "mid" : "low";
+      }
+      function byteToChar(text) {
+        const enc = new TextEncoder();
+        const map = [];
+        let bi = 0;
+        for (let i = 0; i < text.length; i++) {
+          const n = enc.encode(text[i]).length;
+          for (let j = 0; j < n; j++) map[bi + j] = i;
+          bi += n;
+        }
+        map[bi] = text.length;
+        return map;
+      }
+      function fixEntOffsets(text, entities) {
+        const m = byteToChar(text);
+        return (entities || []).map((e) => ({
+          ...e,
+          start: m[e.start] ?? e.start,
+          end: m[e.end] ?? e.end,
+        }));
+      }
+      function highlightJson(obj) {
+        const j = JSON.stringify(obj, null, 2)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        return j.replace(
+          /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+          (m) => {
+            let c = "jn";
+            if (m.startsWith('"'))
+              c = m.endsWith(":") || /:\s*$/.test(m) ? "jk" : "js";
+            else if (m === "true" || m === "false") c = "jb";
+            else if (m === "null") c = "jnull";
+            return `<span class="${c}">${m}</span>`;
+          },
+        );
+      }
+      function showLoading(el) {
+        el.innerHTML = `<div class="card"><div class="card-body"><div class="loading"><div class="loading-bar"></div><div class="loading-text">Running inference...</div></div></div></div>`;
+      }
+      function showError(el, msg) {
+        el.innerHTML = `<div class="error-box">${esc(msg)}</div>`;
+      }
+
+      function openModal(title) {
+        const m = document.getElementById("result-modal");
+        document.getElementById("modal-title").textContent =
+          title || "Detection Result";
+        m.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+      function closeModal() {
+        document.getElementById("result-modal").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      async function runDetect() {
+        const text = document.getElementById("detect-input").value.trim();
+        if (!text) {
+          toast("Paste or pick a sample first");
+          return;
+        }
+        const btn = document.getElementById("detect-btn"),
+          tm = document.getElementById("detect-timing"),
+          mb = document.getElementById("modal-body"),
+          mt = document.getElementById("modal-timing");
+        btn.disabled = true;
+        tm.textContent = "";
+        lastInput = text;
+        openModal("Detect");
+        showLoading(mb);
+        mt.textContent = "";
+        const t0 = performance.now();
+        try {
+          const r = await fetch("/api/detect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, boost: getBoostLabels() }),
+          });
+          if (!r.ok) {
+            showError(mb, `Request failed (${r.status})`);
+            return;
+          }
+          const data = await r.json();
+          const entities = fixEntOffsets(text, data.entities || []);
+          const redacted = data.redacted || "";
+          const dt = Math.round(performance.now() - t0);
+          tm.textContent = dt + " ms";
+          mt.textContent = dt + " ms";
+          lastData = { original: text, redacted, entities };
+          currentView = "highlight";
+          renderFullResult(mb, text, lastData);
+        } catch (e) {
+          showError(mb, e.message);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      function renderFullResult(el, text, data) {
+        const ents = data.entities || [];
+        const vt = ["highlight", "mask", "replace", "json"]
+          .map(
+            (v) =>
+              `<button class="view-tab ${v === currentView ? "active" : ""}" onclick="switchView('${v}')">${v}</button>`,
+          )
+          .join("");
+        const tbl = ents.length
+          ? renderEntityTable(ents)
+          : `<p class="empty">No PII detected at current threshold.</p>`;
+        el.innerHTML = `
+    <div class="card"><div class="card-header"><h3>Detected PII</h3><div class="actions" style="display:flex;gap:6px;align-items:center"><div class="view-tabs">${vt}</div><button class="btn-ghost" onclick="copyRedacted()">Copy redacted</button></div></div><div class="card-body"><div id="detect-view-body" class="highlight-text"></div></div></div>
+    <div class="card"><div class="card-header"><h3>Entities (${ents.length})</h3></div><div class="card-body">${tbl}</div></div>`;
+        renderViewBody();
+      }
+      function switchView(v) {
+        currentView = v;
+        document
+          .querySelectorAll(".view-tab")
+          .forEach((t) => t.classList.toggle("active", t.textContent === v));
+        renderViewBody();
+      }
+      function renderViewBody() {
+        const b = document.getElementById("detect-view-body");
+        if (!b || !lastData) return;
+        if (currentView === "json") {
+          b.className = "json-view";
+          b.innerHTML = highlightJson(lastData);
+          return;
+        }
+        b.className = "highlight-text";
+        if (currentView === "replace") {
+          b.innerHTML = buildReplaced(lastInput, lastData.entities);
+          return;
+        }
+        if (currentView === "mask") {
+          b.innerHTML = buildHighlighted(lastInput, lastData.entities, true);
+          return;
+        }
+        b.innerHTML = buildHighlighted(lastInput, lastData.entities, false);
+      }
+      function buildHighlighted(text, entities, mask) {
+        const sorted = [...(entities || [])].sort((a, b) => a.start - b.start);
+        let out = "",
+          cur = 0;
+        for (const e of sorted) {
+          if (e.start < cur) continue;
+          out += esc(text.slice(cur, e.start));
+          if (mask) {
+            out += `<span style="background:var(--bg-3);color:transparent;text-shadow:0 0 10px rgba(0,0,0,.95);user-select:none;padding:2px 6px;border-radius:4px;border:1px solid var(--border)">${esc(e.value)}</span>`;
+          } else {
+            const cls = e.needs_review ? "pii pii-review" : "pii pii-auto";
+            out += `<span class="${cls}" title="${esc(e.type)} · ${Math.round(e.score * 100)}%">${esc(e.value)}<span class="pii-label">${esc(e.type)}</span></span>`;
+          }
+          cur = e.end;
+        }
+        out += esc(text.slice(cur));
+        return out;
+      }
+      function buildReplaced(text, entities) {
+        const sorted = [...(entities || [])]
+          .filter((e) => !e.needs_review)
+          .sort((a, b) => a.start - b.start);
+        let out = "",
+          cur = 0;
+        for (const e of sorted) {
+          if (e.start < cur) continue;
+          out += esc(text.slice(cur, e.start));
+          out += `<span class="pii-replace">[${esc(e.type.toUpperCase())}]</span>`;
+          cur = e.end;
+        }
+        out += esc(text.slice(cur));
+        return out;
+      }
+      function renderEntityTable(entities) {
+        const rows = entities
+          .map((e) => {
+            const tag = e.needs_review
+              ? '<span class="tag tag-review">review</span>'
+              : '<span class="tag tag-auto">auto</span>';
+            const pct = Math.round(e.score * 100);
+            return `<tr><td>${tag}</td><td><b>${esc(e.type)}</b></td><td class="val">${esc(e.value)}</td><td style="font-family:var(--mono);font-size:11px">${pct}%<span class="score-bar"><span class="score-fill ${scoreClass(e.score)}" style="width:${pct}%"></span></span></td><td class="span">${e.start}–${e.end}</td></tr>`;
+          })
+          .join("");
+        return `<table class="entity-table"><thead><tr><th></th><th>Type</th><th>Value</th><th>Score</th><th>Span</th></tr></thead><tbody>${rows}</tbody></table>`;
+      }
+
+      async function copyRedacted() {
+        if (!lastData || !lastData.redacted) return;
+        try {
+          await navigator.clipboard.writeText(lastData.redacted);
+          toast("Copied");
+        } catch {
+          toast("Copy failed");
+        }
+      }
+    </script>
+  </body>
+</html>

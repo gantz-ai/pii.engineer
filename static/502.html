@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <title>Service Unavailable — PII Engineer</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+      body {
+        background: #050810;
+        color: #f1f5f9;
+        font-family: "JetBrains Mono", monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        text-align: center;
+      }
+      .wrap { max-width: 400px; padding: 32px; }
+      .code {
+        font-size: 96px;
+        font-weight: 700;
+        color: #f87171;
+        line-height: 1;
+        margin-bottom: 16px;
+      }
+      .msg {
+        font-size: 16px;
+        color: #94a3b8;
+        margin-bottom: 12px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 32px;
+      }
+      a {
+        display: inline-block;
+        padding: 10px 24px;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 4px;
+        color: #60a5fa;
+        text-decoration: none;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s;
+      }
+      a:hover {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="code">502</div>
+      <div class="msg">Service is temporarily unavailable.</div>
+      <div class="hint">The server is restarting or under maintenance. Please try again in a moment.</div>
+      <a href="/">Retry</a>
+    </div>
+  </body>
+</html>
