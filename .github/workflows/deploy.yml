@@ -26,26 +26,60 @@ jobs:
       - name: Build release
         run: cargo build --release --package pii-engineer-server
 
-      - name: Deploy to server
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Deploy to all pool droplets
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          SSH_OPTS="-o StrictHostKeyChecking=no -i ~/.ssh/deploy_key"
+          SSH_OPTS="-o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/deploy_key"
 
-          # Upload binary and static files
-          scp $SSH_OPTS target/release/pii-engineer-server root@$HOST:/opt/pii-engineer/pii-engineer-server.new
           tar czf /tmp/static.tar.gz -C static .
-          scp $SSH_OPTS /tmp/static.tar.gz root@$HOST:/tmp/static.tar.gz
-          ssh $SSH_OPTS root@$HOST 'mkdir -p /opt/pii-engineer/static && tar xzf /tmp/static.tar.gz -C /opt/pii-engineer/static && rm /tmp/static.tar.gz'
 
-          # Swap binary and restart
-          ssh $SSH_OPTS root@$HOST '
-            systemctl stop pii-engineer || true
-            mv /opt/pii-engineer/pii-engineer-server.new /opt/pii-engineer/pii-engineer-server
-            chmod +x /opt/pii-engineer/pii-engineer-server
-            systemctl start pii-engineer
-          '
+          POOL_ID=$(doctl compute droplet-autoscale-pool list --format ID --no-header | head -1)
+          DROPLETS=$(doctl compute droplet-autoscale-pool list-members $POOL_ID --format PublicIPv4 --no-header)
+          if [ -z "$DROPLETS" ]; then
+            echo "No droplets found in autoscale pool"
+            exit 1
+          fi
+
+          for IP in $DROPLETS; do
+            echo "Deploying to $IP..."
+            scp $SSH_OPTS target/release/pii-engineer-server root@$IP:/opt/pii-engineer/pii-engineer-server.new
+            scp $SSH_OPTS /tmp/static.tar.gz root@$IP:/tmp/static.tar.gz
+            ssh $SSH_OPTS root@$IP '
+              mkdir -p /opt/pii-engineer/static
+              tar xzf /tmp/static.tar.gz -C /opt/pii-engineer/static
+              rm /tmp/static.tar.gz
+              systemctl stop pii-engineer || true
+              mv /opt/pii-engineer/pii-engineer-server.new /opt/pii-engineer/pii-engineer-server
+              chmod +x /opt/pii-engineer/pii-engineer-server
+              systemctl start pii-engineer
+            '
+            echo "Deployed to $IP ✓"
+          done
+
+      - name: Update pool snapshot
+        run: |
+          POOL_ID=$(doctl compute droplet-autoscale-pool list --format ID --no-header | head -1)
+          DROPLET_ID=$(doctl compute droplet-autoscale-pool list-members $POOL_ID --format ID --no-header | head -1)
+          SNAP_NAME="pii-engineer-$(date +%Y%m%d-%H%M%S)"
+
+          echo "Taking snapshot of droplet $DROPLET_ID..."
+          doctl compute droplet-action snapshot $DROPLET_ID --snapshot-name "$SNAP_NAME" --wait
+
+          SNAP_ID=$(doctl compute snapshot list --resource droplet --format ID,Name --no-header | grep "$SNAP_NAME" | awk '{print $1}')
+
+          if [ -n "$SNAP_ID" ]; then
+            echo "Updating pool $POOL_ID with snapshot $SNAP_ID..."
+            doctl compute droplet-autoscale-pool update $POOL_ID --template-image-id $SNAP_ID
+            echo "Pool template updated ✓"
+          else
+            echo "Warning: could not find snapshot $SNAP_NAME"
+          fi
