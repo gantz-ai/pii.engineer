@@ -1288,28 +1288,31 @@
           GitHub
         </a>
         <a href="https://huggingface.co/pii-engineer" target="_blank" rel="noopener" class="status-pill" style="text-decoration: none; color: var(--green);">
-          <img src="https://huggingface.co/favicon.ico" width="14" height="14" alt="HF" style="vertical-align: middle;">
+          <img src="/static/hf-icon.png" width="14" height="14" alt="HF" loading="lazy" style="vertical-align: middle;">
           HuggingFace
         </a>
       </div>
       <div class="navbar-right">
         <a href="https://pilotpulse.ai/" target="_blank" rel="noopener"
-          ><img src="/static/pilotpulse.png" alt="PilotPulse.ai"
-        /></a>
+          ><picture><source srcset="/static/pilotpulse.webp" type="image/webp"><img src="/static/pilotpulse.png" alt="PilotPulse.ai" width="223" height="40" loading="lazy"
+        /></picture></a>
       </div>
     </nav>
     <main class="app">
       <!-- ═══════════ PII DETECTION ═══════════ -->
       <div id="panel-detect">
         <div style="text-align: center; margin-bottom: 24px">
-          <img
-            src="/static/banner.png"
-            alt="PII Engineer — Multilingual PII Detection"
-            fetchpriority="high"
-            width="280"
-            height="181"
-            style="max-width: 280px; width: 100%; height: auto; opacity: 0.85"
-          />
+          <picture>
+            <source srcset="/static/banner.webp" type="image/webp">
+            <img
+              src="/static/banner.png"
+              alt="PII Engineer — Multilingual PII Detection"
+              fetchpriority="high"
+              width="280"
+              height="181"
+              style="max-width: 280px; width: 100%; height: auto; opacity: 0.85"
+            />
+          </picture>
         </div>
         <div class="input-wrap">
           <textarea
