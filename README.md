@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://pii.engineer">
-    <img src="https://pii.engineer/static/banner.webp" alt="PII Engineer" width="100%" />
+    <img src="https://pii.engineer/static/banner.webp" alt="PII Engineer" width="300" />
   </a>
 </p>
 
