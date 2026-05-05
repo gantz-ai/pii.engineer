@@ -132,6 +132,17 @@ jobs:
               -d "{\"name\":\"pii-engineer\",\"config\":{\"min_instances\":1,\"max_instances\":3,\"target_cpu_utilization\":0.6,\"cooldown_minutes\":5},\"droplet_template\":{\"size\":\"s-4vcpu-8gb-amd\",\"region\":\"sgp1\",\"image\":\"$SNAP_ID\",\"tags\":[\"pii-engineer\"],\"ssh_keys\":[\"56110160\"],\"vpc_uuid\":\"b505bad8-571f-4150-90ce-6c7918f22507\",\"with_droplet_agent\":true,\"project_id\":\"ebec2df1-16a2-4f06-a885-d02eb90226ae\",\"ipv6\":true,\"public_networking\":true}}" \
               "https://api.digitalocean.com/v2/droplets/autoscale/$POOL_ID"
             echo "Pool template updated ✓"
+
+            # Delete old snapshots (keep only the latest)
+            OLD_SNAPS=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+              "https://api.digitalocean.com/v2/snapshots?resource_type=droplet" | \
+              jq -r ".snapshots[] | select(.name | startswith(\"pii-engineer-\")) | select(.id != \"$SNAP_ID\") | .id")
+            for OLD_ID in $OLD_SNAPS; do
+              echo "Deleting old snapshot $OLD_ID..."
+              curl -s -X DELETE -H "Authorization: Bearer $DO_TOKEN" \
+                "https://api.digitalocean.com/v2/snapshots/$OLD_ID"
+            done
+            echo "Cleanup done"
           else
             echo "Warning: could not find snapshot $SNAP_NAME"
           fi
