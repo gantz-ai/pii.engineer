@@ -74,6 +74,18 @@ jobs:
               systemctl stop pii-engineer || true
               mv /opt/pii-engineer/pii-engineer-server.new /opt/pii-engineer/pii-engineer-server
               chmod +x /opt/pii-engineer/pii-engineer-server
+
+              # Cleanup for smaller snapshot / faster boot
+              apt-get clean -y 2>/dev/null
+              rm -rf /var/cache/apt/archives/* /tmp/* /var/tmp/*
+              rm -rf /var/log/*.gz /var/log/*.1 /var/log/journal/*
+              rm -rf /root/.bash_history /root/.cache/pip
+              journalctl --vacuum-time=1h 2>/dev/null
+
+              # Disable unnecessary services
+              systemctl disable unattended-upgrades snapd fwupd 2>/dev/null
+              systemctl stop unattended-upgrades snapd fwupd 2>/dev/null
+
               systemctl start pii-engineer
             '
             echo "Deployed to $IP ✓"

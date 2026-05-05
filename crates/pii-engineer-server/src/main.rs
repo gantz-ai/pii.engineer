@@ -1,3 +1,7 @@
+#[cfg(unix)]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 mod config;
 mod download;
 mod middleware;

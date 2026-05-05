@@ -28,3 +28,4 @@ hf-hub.workspace = true
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+mimalloc = { version = "0.1", default-features = false }
