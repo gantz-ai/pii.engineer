@@ -31,6 +31,7 @@ pub fn router(state: AppState) -> Router {
         .route("/blog/zh", get(blog))
         .route("/blog/vi", get(blog))
         .route("/blog/post/:lang/:slug", get(blog))
+        .route("/benchmarks", get(benchmarks))
         .route("/docs.html", get(docs))
         .route("/sitemap.xml", get(sitemap))
         .route("/robots.txt", get(robots))
@@ -78,6 +79,7 @@ async fn sitemap() -> impl IntoResponse {
 
     let mut urls = vec![
         (format!("{base}/"), "1.0", "weekly"),
+        (format!("{base}/benchmarks"), "0.9", "monthly"),
         (format!("{base}/docs.html"), "0.8", "monthly"),
         (format!("{base}/blog"), "0.9", "weekly"),
     ];
@@ -129,6 +131,10 @@ async fn robots() -> impl IntoResponse {
         [(axum::http::header::CONTENT_TYPE, "text/plain")],
         "User-agent: *\nAllow: /\n\nSitemap: https://pii.engineer/sitemap.xml\n",
     )
+}
+
+async fn benchmarks() -> Response {
+    embedded_html("benchmarks.html")
 }
 
 async fn docs() -> Response {

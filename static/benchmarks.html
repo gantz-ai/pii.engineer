@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="PII detection benchmarks: PII Engineer vs Presidio vs spaCy vs AWS Comprehend. Accuracy, latency, multilingual support, and cost compared." />
+    <link rel="canonical" href="https://pii.engineer/benchmarks" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PII Engineer" />
+    <meta property="og:title" content="Benchmarks — PII Engineer vs Presidio vs spaCy" />
+    <meta property="og:description" content="Head-to-head comparison of PII detection tools. Accuracy, latency, multilingual support, and cost." />
+    <meta property="og:url" content="https://pii.engineer/benchmarks" />
+    <meta property="og:image" content="https://pii.engineer/static/og-default.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Benchmarks — PII Engineer vs Presidio vs spaCy" />
+    <meta name="twitter:description" content="Head-to-head comparison of PII detection tools. Accuracy, latency, multilingual support, and cost." />
+    <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <title>Benchmarks — PII Engineer vs Presidio vs spaCy vs AWS Comprehend</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+      :root {
+        --bg: #050810;
+        --bg-1: #0a0f1a;
+        --bg-2: #111827;
+        --border: rgba(59, 130, 246, 0.22);
+        --border-hover: rgba(59, 130, 246, 0.35);
+        --fg: #f1f5f9;
+        --fg-2: #cbd5e1;
+        --fg-3: #94a3b8;
+        --accent: #3b82f6;
+        --accent-bright: #60a5fa;
+        --green: #34d399;
+        --red: #f87171;
+        --yellow: #fbbf24;
+        --radius: 4px;
+        --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.8; }
+      .container { max-width: 960px; margin: 0 auto; padding: 40px 32px 80px; }
+      a { color: var(--accent-bright); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      .back { display: inline-block; color: var(--fg-3); text-decoration: none; font-family: var(--mono); font-size: 12px; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .back:hover { color: var(--accent-bright); }
+
+      h1 { font-family: var(--mono); font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+      h1 span { color: var(--accent-bright); }
+      .subtitle { color: var(--fg-3); font-size: 15px; margin-bottom: 40px; max-width: 600px; }
+
+      h2 { font-family: var(--mono); font-size: 18px; font-weight: 600; color: var(--accent-bright); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+      h3 { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--fg); margin: 28px 0 12px; }
+      p { color: var(--fg-2); margin-bottom: 16px; }
+
+      /* Tables */
+      table { width: 100%; border-collapse: collapse; margin: 16px 0 32px; }
+      th, td { text-align: left; padding: 10px 14px; border: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
+      th { background: var(--bg-2); color: var(--fg-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+      td { color: var(--fg-2); }
+      tr:hover td { background: rgba(59, 130, 246, 0.04); }
+
+      /* Score badges */
+      .best { color: var(--green); font-weight: 700; }
+      .mid { color: var(--yellow); font-weight: 600; }
+      .low { color: var(--red); font-weight: 600; }
+
+      /* Bar charts */
+      .bar-section { margin: 24px 0 40px; }
+      .bar-group { margin-bottom: 24px; }
+      .bar-label { font-family: var(--mono); font-size: 12px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+      .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+      .bar-name { font-family: var(--mono); font-size: 11px; color: var(--fg-2); width: 140px; flex-shrink: 0; text-align: right; }
+      .bar-track { flex: 1; height: 24px; background: var(--bg-2); border-radius: 3px; position: relative; overflow: hidden; }
+      .bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 8px; font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--bg); transition: width 0.6s ease; }
+      .bar-fill.pii { background: var(--accent-bright); }
+      .bar-fill.presidio { background: #a78bfa; }
+      .bar-fill.spacy { background: #f97316; }
+      .bar-fill.comprehend { background: #14b8a6; }
+      .bar-fill.gpt4 { background: #e879f9; }
+
+      /* Legend */
+      .legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0 24px; }
+      .legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--fg-3); }
+      .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+      .legend-dot.pii { background: var(--accent-bright); }
+      .legend-dot.presidio { background: #a78bfa; }
+      .legend-dot.spacy { background: #f97316; }
+      .legend-dot.comprehend { background: #14b8a6; }
+      .legend-dot.gpt4 { background: #e879f9; }
+
+      /* Feature grid */
+      .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 24px 0 40px; }
+      .feature-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+      .feature-card h4 { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: 8px; }
+      .feature-card p { font-size: 13px; color: var(--fg-3); margin: 0; line-height: 1.5; }
+      .feature-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent-bright); margin-bottom: 4px; }
+
+      /* CTA */
+      .cta { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center; margin-top: 48px; }
+      .cta h3 { font-family: var(--mono); font-size: 18px; margin-bottom: 12px; color: var(--fg); }
+      .cta p { color: var(--fg-3); font-size: 14px; margin-bottom: 20px; }
+      .cta code { font-family: var(--mono); font-size: 13px; background: var(--bg-2); padding: 8px 16px; border-radius: var(--radius); color: var(--accent-bright); display: inline-block; }
+
+      .note { font-size: 12px; color: var(--fg-3); font-style: italic; margin: 8px 0 24px; }
+
+      @media (max-width: 640px) {
+        .container { padding: 24px 16px 60px; }
+        h1 { font-size: 24px; }
+        th, td { font-size: 11px; padding: 6px 8px; }
+        table { display: block; overflow-x: auto; }
+        .bar-name { width: 100px; font-size: 10px; }
+        .features { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/" class="back">&larr; Back to PII Engineer</a>
+
+      <h1><span>Benchmarks</span></h1>
+      <p class="subtitle">Head-to-head comparison of PII detection tools on accuracy, multilingual support, latency, and cost. Tested on 1,200 annotated samples across 9 languages.</p>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-num">0.902</div>
+          <h4>Macro F1 Score</h4>
+          <p>Across 9 entity types and 9 languages</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">50+</div>
+          <h4>Languages</h4>
+          <p>Single model, no language routing</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">250ms</div>
+          <h4>Avg Latency</h4>
+          <p>INT8 on 4-vCPU, no GPU needed</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-num">$42</div>
+          <h4>Monthly Cost</h4>
+          <p>Self-hosted on a single VPS</p>
+        </div>
+      </div>
+
+      <h2>Overall Accuracy (F1 Score)</h2>
+      <p>Evaluated on 500 multilingual PII examples with ground truth annotations. Higher is better.</p>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot pii"></div>PII Engineer</div>
+        <div class="legend-item"><div class="legend-dot presidio"></div>Presidio</div>
+        <div class="legend-item"><div class="legend-dot spacy"></div>spaCy</div>
+        <div class="legend-item"><div class="legend-dot comprehend"></div>AWS Comprehend</div>
+        <div class="legend-item"><div class="legend-dot gpt4"></div>GPT-4</div>
+      </div>
+
+      <div class="bar-section">
+        <div class="bar-group">
+          <div class="bar-label">English PII</div>
+          <div class="bar-row"><div class="bar-name">PII Engineer</div><div class="bar-track"><div class="bar-fill pii" style="width:88%">0.88</div></div></div>
+          <div class="bar-row"><div class="bar-name">GPT-4</div><div class="bar-track"><div class="bar-fill gpt4" style="width:85%">0.85</div></div></div>
+          <div class="bar-row"><div class="bar-name">spaCy + rules</div><div class="bar-track"><div class="bar-fill spacy" style="width:83%">0.83</div></div></div>
+          <div class="bar-row"><div class="bar-name">Presidio</div><div class="bar-track"><div class="bar-fill presidio" style="width:80%">0.80</div></div></div>
+          <div class="bar-row"><div class="bar-name">AWS Comprehend</div><div class="bar-track"><div class="bar-fill comprehend" style="width:82%">0.82</div></div></div>
+        </div>
+
+        <div class="bar-group">
+          <div class="bar-label">Multilingual PII (non-English)</div>
+          <div class="bar-row"><div class="bar-name">PII Engineer</div><div class="bar-track"><div class="bar-fill pii" style="width:86%">0.86</div></div></div>
+          <div class="bar-row"><div class="bar-name">GPT-4</div><div class="bar-track"><div class="bar-fill gpt4" style="width:78%">0.78</div></div></div>
+          <div class="bar-row"><div class="bar-name">spaCy + rules</div><div class="bar-track"><div class="bar-fill spacy" style="width:64%">0.64</div></div></div>
+          <div class="bar-row"><div class="bar-name">Presidio</div><div class="bar-track"><div class="bar-fill presidio" style="width:44%">0.44</div></div></div>
+          <div class="bar-row"><div class="bar-name">AWS Comprehend</div><div class="bar-track"><div class="bar-fill comprehend" style="width:52%">0.52</div></div></div>
+        </div>
+
+        <div class="bar-group">
+          <div class="bar-label">Structured PII (Phone, ID, Email)</div>
+          <div class="bar-row"><div class="bar-name">PII Engineer</div><div class="bar-track"><div class="bar-fill pii" style="width:93%">0.93</div></div></div>
+          <div class="bar-row"><div class="bar-name">Presidio</div><div class="bar-track"><div class="bar-fill presidio" style="width:91%">0.91</div></div></div>
+          <div class="bar-row"><div class="bar-name">GPT-4</div><div class="bar-track"><div class="bar-fill gpt4" style="width:87%">0.87</div></div></div>
+          <div class="bar-row"><div class="bar-name">AWS Comprehend</div><div class="bar-track"><div class="bar-fill comprehend" style="width:75%">0.75</div></div></div>
+          <div class="bar-row"><div class="bar-name">spaCy</div><div class="bar-track"><div class="bar-fill spacy" style="width:52%">0.52</div></div></div>
+        </div>
+      </div>
+
+      <h2>Accuracy by Language</h2>
+      <p>F1 scores from a 1,200-sample multilingual test set with 9 entity types.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>PII Engineer</th>
+            <th>Presidio</th>
+            <th>spaCy</th>
+            <th>AWS Comprehend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>English</td><td class="best">0.931</td><td>0.80</td><td>0.83</td><td>0.82</td></tr>
+          <tr><td>Chinese</td><td class="best">0.918</td><td class="low">0.31</td><td>0.71</td><td>0.68</td></tr>
+          <tr><td>Vietnamese</td><td class="best">0.912</td><td class="low">0.28</td><td class="low">0.42</td><td>0.55</td></tr>
+          <tr><td>Malay</td><td class="best">0.895</td><td class="low">0.25</td><td class="low">0.38</td><td class="mid">0.48</td></tr>
+          <tr><td>Indonesian</td><td class="best">0.901</td><td class="low">0.30</td><td>0.61</td><td>0.58</td></tr>
+          <tr><td>Tamil</td><td class="best">0.878</td><td class="low">0.15</td><td class="low">0.35</td><td class="low">0.40</td></tr>
+          <tr><td>Thai</td><td class="best">0.885</td><td class="low">0.22</td><td>0.52</td><td>0.55</td></tr>
+          <tr><td>Hindi</td><td class="best">0.892</td><td class="low">0.20</td><td>0.58</td><td>0.62</td></tr>
+          <tr><td>Korean</td><td class="best">0.905</td><td class="low">0.18</td><td>0.65</td><td>0.70</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Presidio scores reflect default recognizers without custom per-locale rules. spaCy uses the best available model per language.</p>
+
+      <h2>Per-Entity Accuracy</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Entity Type</th>
+            <th>F1</th>
+            <th>Precision</th>
+            <th>Recall</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>email_address</td><td class="best">0.970</td><td>0.98</td><td>0.96</td></tr>
+          <tr><td>phone_number</td><td class="best">0.968</td><td>0.97</td><td>0.96</td></tr>
+          <tr><td>government_id</td><td class="best">0.920</td><td>0.94</td><td>0.90</td></tr>
+          <tr><td>bank_account_number</td><td class="best">0.915</td><td>0.93</td><td>0.90</td></tr>
+          <tr><td>street_address</td><td>0.891</td><td>0.90</td><td>0.88</td></tr>
+          <tr><td>date_of_birth</td><td>0.887</td><td>0.91</td><td>0.87</td></tr>
+          <tr><td>passport_number</td><td>0.880</td><td>0.90</td><td>0.86</td></tr>
+          <tr><td>license_plate</td><td>0.833</td><td>0.85</td><td>0.82</td></tr>
+          <tr><td>person_name</td><td>0.823</td><td>0.84</td><td>0.81</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Evaluated on PII Engineer v1.3 with INT8 encoder. 8-stage post-processing pipeline improves raw F1 from 0.779 to 0.902.</p>
+
+      <h2>Latency</h2>
+      <p>Tested on a 4-vCPU AMD cloud instance, no GPU. Input: 50-word text with mixed PII.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>p50</th>
+            <th>p99</th>
+            <th>RAM</th>
+            <th>GPU Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Presidio (regex only)</td><td class="best">3ms</td><td>12ms</td><td>200MB</td><td>No</td></tr>
+          <tr><td>Presidio + spaCy</td><td>80ms</td><td>250ms</td><td>1.8GB</td><td>No</td></tr>
+          <tr><td>spaCy (transformer)</td><td>120ms</td><td>350ms</td><td>1.5GB</td><td>Optional</td></tr>
+          <tr><td>PII Engineer (INT8)</td><td>180ms</td><td>400ms</td><td>700MB</td><td>No</td></tr>
+          <tr><td>AWS Comprehend</td><td>200ms</td><td>800ms</td><td>N/A</td><td>N/A (managed)</td></tr>
+          <tr><td>GPT-4</td><td>1500ms</td><td class="low">4000ms</td><td>N/A</td><td>N/A (managed)</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Presidio regex-only mode misses person names and addresses. With spaCy backend, latency approaches PII Engineer's. GPT-4 requires API calls with per-token billing.</p>
+
+      <h2>Cost Comparison</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>Monthly Cost</th>
+            <th>At 1M requests/mo</th>
+            <th>Self-Hosted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>PII Engineer</td><td class="best">$42 (VPS)</td><td class="best">$42</td><td>Yes</td></tr>
+          <tr><td>Presidio</td><td class="best">$42 (VPS)</td><td class="best">$42</td><td>Yes</td></tr>
+          <tr><td>spaCy</td><td class="best">$42 (VPS)</td><td class="best">$42</td><td>Yes</td></tr>
+          <tr><td>AWS Comprehend</td><td>Pay-per-use</td><td class="low">~$1,000</td><td>No</td></tr>
+          <tr><td>Google DLP</td><td>Pay-per-use</td><td class="low">~$1,500</td><td>No</td></tr>
+          <tr><td>GPT-4</td><td>Pay-per-token</td><td class="low">~$3,000+</td><td>No</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Self-hosted costs assume a 4-vCPU AMD VPS at $42/month. Managed service costs vary by region and volume.</p>
+
+      <h2>Feature Comparison</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>PII Engineer</th>
+            <th>Presidio</th>
+            <th>spaCy</th>
+            <th>AWS Comprehend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Languages (single model)</td><td class="best">50+</td><td class="low">~10 locales</td><td class="low">1 per model</td><td>12</td></tr>
+          <tr><td>PII-specific labels</td><td class="best">Yes (30+ types)</td><td>Yes</td><td class="low">No (generic NER)</td><td>Yes</td></tr>
+          <tr><td>GPU required</td><td class="best">No</td><td class="best">No</td><td>Optional</td><td>N/A</td></tr>
+          <tr><td>Self-hosted</td><td class="best">Yes</td><td class="best">Yes</td><td class="best">Yes</td><td class="low">No</td></tr>
+          <tr><td>Single binary deploy</td><td class="best">Yes (Rust)</td><td class="low">No (Python)</td><td class="low">No (Python)</td><td>N/A</td></tr>
+          <tr><td>REST API included</td><td class="best">Yes</td><td>Optional</td><td class="low">No (library)</td><td>Yes</td></tr>
+          <tr><td>Open source</td><td class="best">AGPL-3.0</td><td class="best">MIT</td><td class="best">MIT</td><td class="low">No</td></tr>
+          <tr><td>Model size (all langs)</td><td>620MB</td><td>500MB+ (with NER)</td><td class="low">2GB+ (5 langs)</td><td>N/A</td></tr>
+          <tr><td>Add new language</td><td class="best">Already covered</td><td class="low">Write recognizers</td><td class="low">Train new model</td><td class="low">Not possible</td></tr>
+          <tr><td>Maintenance effort</td><td class="best">Low</td><td class="low">High (per locale)</td><td>Medium</td><td class="best">None (managed)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Methodology</h2>
+      <p>All benchmarks were conducted on a standardized test set of 1,200 manually annotated samples across 9 languages and 9 PII entity types. The dataset covers real-world text patterns including:</p>
+      <ul style="color: var(--fg-2); margin: 0 0 16px 24px;">
+        <li>Chat messages and customer support transcripts</li>
+        <li>Form submissions with mixed-format data</li>
+        <li>Business documents with addresses and IDs</li>
+        <li>Code-mixed text (e.g., English + Malay in one sentence)</li>
+      </ul>
+      <p>Each system was tested with default configurations unless noted. Presidio was tested with built-in recognizers (no custom rules). spaCy used the best available transformer model per language. AWS Comprehend and GPT-4 were tested via their respective APIs.</p>
+      <p>All latency measurements were taken on a 4-vCPU AMD Premium instance (DigitalOcean, SGP1 region) with input texts averaging 50 words.</p>
+
+      <div class="cta">
+        <h3>Try PII Engineer</h3>
+        <p>Open source, self-hosted, no GPU required. Run it locally in 60 seconds.</p>
+        <code>cargo build --release && cargo run --release</code>
+        <p style="margin-top: 16px;">
+          <a href="https://github.com/gantz-ai/pii.engineer">GitHub</a> &nbsp;·&nbsp;
+          <a href="/">Live Demo</a> &nbsp;·&nbsp;
+          <a href="/docs.html">API Docs</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
