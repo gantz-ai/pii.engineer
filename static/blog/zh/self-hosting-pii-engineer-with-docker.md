@@ -220,7 +220,7 @@ INFO pii_engineer_server: detect request text_length=1234 entities_found=5 durat
 
 ## 源代码
 
-PII Engineer 在 AGPL-3.0 下开源：
+PII Engineer 在 Apache-2.0 下开源：
 
 - 仓库：[github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)
 - 模型：[huggingface.co/pii-engineer](https://huggingface.co/pii-engineer)

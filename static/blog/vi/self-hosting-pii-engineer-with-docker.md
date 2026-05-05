@@ -220,7 +220,7 @@ Không cần GPU. ONNX runtime sử dụng CPU inference với threading tối �
 
 ## Mã Nguồn
 
-PII Engineer là mã nguồn mở theo giấy phép AGPL-3.0:
+PII Engineer là mã nguồn mở theo giấy phép Apache-2.0:
 
 - Repository: [github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)
 - Models: [huggingface.co/pii-engineer](https://huggingface.co/pii-engineer)

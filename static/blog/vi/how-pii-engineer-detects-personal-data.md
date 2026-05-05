@@ -95,7 +95,7 @@ Server tự động tải mô hình từ HuggingFace khi chạy lần đầu, kh
 
 ## Dùng Thử
 
-PII Engineer là mã nguồn mở theo giấy phép AGPL-3.0. Bắt đầu chỉ với một lệnh:
+PII Engineer là mã nguồn mở theo giấy phép Apache-2.0. Bắt đầu chỉ với một lệnh:
 
 ```
 cargo build --release --package pii-engineer-server

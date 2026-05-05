@@ -116,6 +116,6 @@ cargo run --release --package pii-engineer-server
 # Server starts at http://localhost:8000
 ```
 
-For compliance scanning at scale, deploy behind your existing API gateway and integrate with your data pipeline. The AGPL-3.0 license allows free use in open-source systems; commercial licenses are available for proprietary deployments.
+For compliance scanning at scale, deploy behind your existing API gateway and integrate with your data pipeline. The Apache-2.0 license allows free use in open-source systems; commercial licenses are available for proprietary deployments.
 
 Source: [github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)

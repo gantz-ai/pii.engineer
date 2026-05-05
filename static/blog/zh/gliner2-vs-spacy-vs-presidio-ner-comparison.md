@@ -283,7 +283,7 @@ pii_engineer_results = resp.json()["entities"]
 
 ## 试用
 
-PII Engineer 在 AGPL-3.0 许可证下开源：
+PII Engineer 在 Apache-2.0 许可证下开源：
 
 ```bash
 cargo build --release --package pii-engineer-server

@@ -276,7 +276,7 @@ For these gaps, combine PII Engineer with domain-specific rules in your pipeline
 
 ## Getting Started
 
-PII Engineer is open source under AGPL-3.0. For healthcare deployments, the self-hosted architecture means your compliance team only needs to audit your own infrastructure.
+PII Engineer is open source under Apache-2.0. For healthcare deployments, the self-hosted architecture means your compliance team only needs to audit your own infrastructure.
 
 ```bash
 cargo build --release --package pii-engineer-server

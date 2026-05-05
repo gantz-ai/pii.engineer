@@ -417,7 +417,7 @@ Each checkpoint calls the same PII Engineer API. The detection logic is centrali
 
 ## Source Code
 
-PII Engineer is open source under AGPL-3.0:
+PII Engineer is open source under Apache-2.0:
 
 - Repository: [github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)
 - Models: [huggingface.co/pii-engineer](https://huggingface.co/pii-engineer)

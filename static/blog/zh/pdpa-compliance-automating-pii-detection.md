@@ -116,6 +116,6 @@ cargo run --release --package pii-engineer-server
 # 服务启动于 http://localhost:8000
 ```
 
-若需大规模合规扫描，可将其部署在现有的 API 网关之后并集成至数据管道。AGPL-3.0 协议允许在开源系统中免费使用；商业部署可获取商业许可。
+若需大规模合规扫描，可将其部署在现有的 API 网关之后并集成至数据管道。Apache-2.0 协议允许在开源系统中免费使用；商业部署可获取商业许可。
 
 源代码：[github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)

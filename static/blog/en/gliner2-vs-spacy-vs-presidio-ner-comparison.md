@@ -283,7 +283,7 @@ If your data is English-only and you need microsecond latency, Presidio's regex 
 
 ## Try It
 
-PII Engineer is open source under AGPL-3.0:
+PII Engineer is open source under Apache-2.0:
 
 ```bash
 cargo build --release --package pii-engineer-server

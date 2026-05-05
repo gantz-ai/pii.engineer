@@ -95,7 +95,7 @@ The server auto-downloads models from HuggingFace on first run, warms up the ONN
 
 ## Try It
 
-PII Engineer is open source under AGPL-3.0. Get started in one command:
+PII Engineer is open source under Apache-2.0. Get started in one command:
 
 ```
 cargo build --release --package pii-engineer-server

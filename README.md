@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://github.com/gantz-ai/pii.engineer/actions/workflows/ci.yml"><img src="https://github.com/gantz-ai/pii.engineer/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/Made%20with-Rust-dea584?logo=rust&logoColor=white" alt="Made with Rust" />
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPL-3.0" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache-2.0" /></a>
   <a href="https://huggingface.co/pii-engineer"><img src="https://img.shields.io/badge/HuggingFace-Models-yellow" alt="HuggingFace" /></a>
   <a href="https://pii.engineer/benchmarks"><img src="https://img.shields.io/badge/F1-0.902-brightgreen" alt="F1 Score" /></a>
 </p>
@@ -161,6 +161,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-[AGPL-3.0](LICENSE) — free for open-source use. Commercial license available at [pii.engineer](https://pii.engineer).
+[Apache-2.0](LICENSE)
 
 See [NOTICE](NOTICE) for upstream attributions.

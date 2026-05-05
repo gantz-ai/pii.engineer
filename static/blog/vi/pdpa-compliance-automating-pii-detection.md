@@ -116,6 +116,6 @@ cargo run --release --package pii-engineer-server
 # Server khởi động tại http://localhost:8000
 ```
 
-Để quét tuân thủ quy mô lớn, triển khai phía sau API gateway hiện có và tích hợp với pipeline dữ liệu. Giấy phép AGPL-3.0 cho phép sử dụng miễn phí trong hệ thống mã nguồn mở; giấy phép thương mại có sẵn cho triển khai độc quyền.
+Để quét tuân thủ quy mô lớn, triển khai phía sau API gateway hiện có và tích hợp với pipeline dữ liệu. Giấy phép Apache-2.0 cho phép sử dụng miễn phí trong hệ thống mã nguồn mở; giấy phép thương mại có sẵn cho triển khai độc quyền.
 
 Mã nguồn: [github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)

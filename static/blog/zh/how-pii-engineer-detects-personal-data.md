@@ -95,7 +95,7 @@ PII Engineer 采用双模型方案：
 
 ## 立即体验
 
-PII Engineer 以 AGPL-3.0 协议开源。一条命令即可启动：
+PII Engineer 以 Apache-2.0 协议开源。一条命令即可启动：
 
 ```
 cargo build --release --package pii-engineer-server

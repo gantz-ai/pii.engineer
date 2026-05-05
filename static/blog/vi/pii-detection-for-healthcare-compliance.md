@@ -276,7 +276,7 @@ Cho những khoảng trống này, kết hợp PII Engineer với các quy tắc
 
 ## Bắt Đầu
 
-PII Engineer là mã nguồn mở theo giấy phép AGPL-3.0. Đối với triển khai y tế, kiến trúc tự lưu trữ có nghĩa là đội tuân thủ của bạn chỉ cần kiểm toán hạ tầng của chính mình.
+PII Engineer là mã nguồn mở theo giấy phép Apache-2.0. Đối với triển khai y tế, kiến trúc tự lưu trữ có nghĩa là đội tuân thủ của bạn chỉ cần kiểm toán hạ tầng của chính mình.
 
 ```bash
 cargo build --release --package pii-engineer-server

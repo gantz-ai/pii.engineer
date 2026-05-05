@@ -283,7 +283,7 @@ Nếu dữ liệu của bạn chỉ tiếng Anh và bạn cần độ trễ micr
 
 ## Dùng Thử
 
-PII Engineer là mã nguồn mở theo giấy phép AGPL-3.0:
+PII Engineer là mã nguồn mở theo giấy phép Apache-2.0:
 
 ```bash
 cargo build --release --package pii-engineer-server

@@ -276,7 +276,7 @@ def detect_and_audit(text: str, document_id: str, user_id: str) -> list[dict]:
 
 ## 开始使用
 
-PII Engineer 在 AGPL-3.0 许可证下开源。对于医疗部署，自托管架构意味着您的合规团队只需审计自己的基础设施。
+PII Engineer 在 Apache-2.0 许可证下开源。对于医疗部署，自托管架构意味着您的合规团队只需审计自己的基础设施。
 
 ```bash
 cargo build --release --package pii-engineer-server

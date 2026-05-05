@@ -332,7 +332,7 @@ def audit_log(source: str, message_id: str, entities: list[dict]):
 
 ## 源代码
 
-PII Engineer 在 AGPL-3.0 下开源：
+PII Engineer 在 Apache-2.0 下开源：
 
 - 仓库：[github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)
 - 模型：[huggingface.co/pii-engineer](https://huggingface.co/pii-engineer)

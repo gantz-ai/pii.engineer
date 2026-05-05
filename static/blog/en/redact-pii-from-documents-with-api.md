@@ -340,7 +340,7 @@ Each instance loads models into RAM (~700MB). On a 4-vCPU machine, a single inst
 
 ## Source Code
 
-PII Engineer is open source under AGPL-3.0:
+PII Engineer is open source under Apache-2.0:
 
 - Repository: [github.com/gantz-ai/pii.engineer](https://github.com/gantz-ai/pii.engineer)
 - Models: [huggingface.co/pii-engineer](https://huggingface.co/pii-engineer)

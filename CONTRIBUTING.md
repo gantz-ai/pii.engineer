@@ -49,4 +49,4 @@ cargo run --release -p pii-engineer-server
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [AGPL-3.0](LICENSE).
+By contributing, you agree that your contributions will be licensed under the [Apache-2.0](LICENSE).
