@@ -40,14 +40,23 @@ jobs:
 
           # Get autoscale pool ID
           POOL_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
-            "https://api.digitalocean.com/v2/droplets/autoscale/pools" | \
+            "https://api.digitalocean.com/v2/droplets/autoscale" | \
             jq -r '.autoscale_pools[0].id')
           echo "Pool ID: $POOL_ID"
 
-          # Get pool member IPs
-          DROPLETS=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
-            "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID/members" | \
-            jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address')
+          # Get pool member droplet IDs, then resolve IPs
+          MEMBER_IDS=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/droplets/autoscale/$POOL_ID/members" | \
+            jq -r '.droplets[].droplet_id')
+
+          DROPLETS=""
+          for DID in $MEMBER_IDS; do
+            IP=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+              "https://api.digitalocean.com/v2/droplets/$DID" | \
+              jq -r '.droplet.networks.v4[] | select(.type=="public") | .ip_address')
+            DROPLETS="$DROPLETS $IP"
+          done
+          DROPLETS=$(echo $DROPLETS | xargs)
 
           if [ -z "$DROPLETS" ]; then
             echo "No droplets found in autoscale pool"
@@ -76,13 +85,13 @@ jobs:
         run: |
           # Get pool info
           POOL_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
-            "https://api.digitalocean.com/v2/droplets/autoscale/pools" | \
+            "https://api.digitalocean.com/v2/droplets/autoscale" | \
             jq -r '.autoscale_pools[0].id')
 
           # Get first member droplet ID
           DROPLET_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
-            "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID/members" | \
-            jq -r '.droplets[0].id')
+            "https://api.digitalocean.com/v2/droplets/autoscale/$POOL_ID/members" | \
+            jq -r '.droplets[0].droplet_id')
 
           SNAP_NAME="pii-engineer-$(date +%Y%m%d-%H%M%S)"
           echo "Taking snapshot '$SNAP_NAME' of droplet $DROPLET_ID..."
@@ -120,8 +129,8 @@ jobs:
             echo "Updating pool template with snapshot $SNAP_ID..."
             curl -s -X PUT -H "Authorization: Bearer $DO_TOKEN" \
               -H "Content-Type: application/json" \
-              -d "{\"template\":{\"image_id\":\"$SNAP_ID\"}}" \
-              "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID"
+              -d "{\"droplet_template\":{\"size\":\"s-4vcpu-8gb-amd\",\"region\":\"sgp1\",\"image\":\"$SNAP_ID\",\"tags\":[\"pii-engineer\"],\"ssh_keys\":[\"56110160\"],\"vpc_uuid\":\"b505bad8-571f-4150-90ce-6c7918f22507\",\"with_droplet_agent\":true,\"project_id\":\"ebec2df1-16a2-4f06-a885-d02eb90226ae\",\"ipv6\":true,\"public_networking\":true}}" \
+              "https://api.digitalocean.com/v2/droplets/autoscale/$POOL_ID"
             echo "Pool template updated ✓"
           else
             echo "Warning: could not find snapshot $SNAP_NAME"
