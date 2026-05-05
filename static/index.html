@@ -51,6 +51,22 @@
     /></noscript>
     <title>PII Engineer — Free Multilingual PII Detection & Redaction</title>
     <style>
+      @font-face {
+        font-family: 'Inter fallback';
+        src: local('Arial');
+        size-adjust: 107%;
+        ascent-override: 90%;
+        descent-override: 25%;
+        line-gap-override: 0%;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono fallback';
+        src: local('Courier New');
+        size-adjust: 112%;
+        ascent-override: 78%;
+        descent-override: 22%;
+        line-gap-override: 0%;
+      }
       :root {
         --bg: #050810;
         --bg-1: #0a0f1a;
@@ -78,10 +94,10 @@
         --red-border: rgba(248, 113, 113, 0.3);
         --radius: 4px;
         --mono:
-          "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+          "JetBrains Mono", "JetBrains Mono fallback", ui-monospace, SFMono-Regular, Menlo, Consolas,
           monospace;
         --sans:
-          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          "Inter", "Inter fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
           sans-serif;
       }
       *,
@@ -367,6 +383,7 @@
         padding-top: 12px;
         margin-top: 8px;
         border-top: 1px solid var(--border);
+        min-height: 120px;
       }
       .samples-label {
         font-family: var(--mono);
@@ -1949,7 +1966,6 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        requestIdleCallback(() => fetch("/api/health").catch(() => {}));
         buildSamples();
         const inp = document.getElementById("detect-input");
         const cc = document.getElementById("detect-char-count");
