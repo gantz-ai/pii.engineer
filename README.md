@@ -38,7 +38,20 @@
 
 [Full benchmarks →](https://pii.engineer/benchmarks)
 
+## Features
+
+- **Multilingual** — single model handles 50+ languages including CJK, SEA, South Asian, and European languages
+- **High accuracy** — 0.90 F1 overall, outperforms regex-based tools on non-English text
+- **Fast** — ~180ms p50 on CPU (INT8 quantized ONNX inference)
+- **Zero-shot labels** — detect custom entity types without retraining
+- **Self-hosted** — runs on a $42/mo VPS, no external API calls, your data never leaves your server
+- **Single binary** — Rust binary with embedded static assets, no Python runtime or dependency hell
+- **Auto-redaction** — returns both detected entities and redacted text in one call
+- **9 PII types** — person names, phone numbers, government IDs, addresses, DOB, emails, passports, license plates, bank accounts
+
 ## Quick Start
+
+### From Source
 
 ```bash
 cargo build --release --package pii-engineer-server
@@ -47,11 +60,22 @@ cargo run --release --package pii-engineer-server
 # API ready at http://localhost:8000
 ```
 
+### Docker
+
+```bash
+docker build -t pii-engineer .
+docker run -p 8000:8000 -v ./models:/app/models pii-engineer
+```
+
+### Test It
+
 ```bash
 curl -X POST http://localhost:8000/api/detect \
   -H "Content-Type: application/json" \
   -d '{"text": "John Doe, NRIC S9012345B, born 12 March 1985"}'
 ```
+
+Response:
 
 ```json
 {
@@ -64,11 +88,45 @@ curl -X POST http://localhost:8000/api/detect \
 }
 ```
 
-### Docker
+## Integration Examples
+
+### Python
+
+```python
+import requests
+
+response = requests.post("http://localhost:8000/api/detect", json={
+    "text": "Ahmad bin Abdullah, +60 12-345 6789, IC 901201-14-5678"
+})
+data = response.json()
+print(data["redacted"])
+# [PERSON_NAME], [PHONE_NUMBER], IC [GOVERNMENT_ID]
+```
+
+### JavaScript / Node.js
+
+```javascript
+const res = await fetch("http://localhost:8000/api/detect", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    text: "Nguyễn Văn A, CCCD 079201012345, sinh ngày 15/03/1990"
+  }),
+});
+const { entities, redacted } = await res.json();
+console.log(redacted);
+// [PERSON_NAME], CCCD [GOVERNMENT_ID], sinh ngày [DATE_OF_BIRTH]
+```
+
+### cURL (batch labels)
 
 ```bash
-docker build -t pii-engineer .
-docker run -p 8000:8000 -v ./models:/app/models pii-engineer
+curl -X POST http://localhost:8000/api/detect \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Call me at 9123 4567 or email john@acme.com",
+    "labels": ["phone_number", "email_address"]
+  }'
 ```
 
 ## PII Types
@@ -87,11 +145,22 @@ docker run -p 8000:8000 -v ./models:/app/models pii-engineer
 
 ## Supported Languages
 
-**Primary:** English, Malay, Tamil, Chinese, Indonesian, Vietnamese
+**Primary (highest accuracy):** English, Malay, Tamil, Chinese, Indonesian, Vietnamese
 
-**Secondary:** Thai, Hindi, Bengali, Korean, Japanese, German, French, Russian, and [40+ more](https://pii.engineer/benchmarks)
+**Secondary:** Thai, Hindi, Bengali, Korean, Japanese, German, French, Spanish, Portuguese, Russian, Arabic, Turkish, Polish, Dutch, Italian, Swedish, and [35+ more](https://pii.engineer/benchmarks)
 
-## API
+The model handles multilingual text natively — mixed-language documents (e.g., English + Chinese + Malay in one paragraph) work without language selection.
+
+## Use Cases
+
+- **PDPA / GDPR compliance** — scan documents, databases, and logs for personal data before audits
+- **LLM guardrails** — redact PII before sending user input to GPT/Claude/Gemini
+- **Data pipelines** — clean PII from ETL outputs, data warehouse columns, Kafka streams
+- **Chat moderation** — detect PII in real-time in Slack, support tickets, or chat apps
+- **Code review** — catch hardcoded PII in test fixtures, config files, and documentation
+- **Document redaction** — auto-redact contracts, resumes, medical records before sharing
+
+## API Reference
 
 ### `POST /api/detect`
 
@@ -101,15 +170,22 @@ docker run -p 8000:8000 -v ./models:/app/models pii-engineer
 | `labels` | string[] | all 9 types | PII types to detect                       |
 | `boost`  | string[] | []          | Labels to boost with description matching |
 
-### `GET /api/health`
+**Response:**
 
 ```json
 {
-  "status": "ok",
-  "version": "1.0.0",
-  "gliner_loaded": true,
-  "chinese_loaded": true
+  "entities": [
+    { "type": "person_name", "value": "John Doe", "start": 0, "end": 8, "score": 0.99, "needs_review": false }
+  ],
+  "redacted": "[PERSON_NAME] lives at [STREET_ADDRESS]",
+  "original": "John Doe lives at 123 Main St"
 }
+```
+
+### `GET /api/health`
+
+```json
+{ "status": "ok", "version": "1.0.0", "gliner_loaded": true, "chinese_loaded": true }
 ```
 
 ## Architecture
@@ -117,15 +193,22 @@ docker run -p 8000:8000 -v ./models:/app/models pii-engineer
 ```
 Request → Language detection → GLiNER2 NER + (Chinese NER if CJK)
             ↓
-  Post-processing pipeline
-  (reclassify → validate → filter → normalize → email/IP detect → threshold → dedup → merge)
+  Post-processing pipeline (8 stages)
+  reclassify → validate → filter → normalize → email/IP detect → threshold → dedup → merge
             ↓
   Response (entities + redacted text)
 ```
 
-**Model:** Fine-tuned [GLiNER2](https://huggingface.co/fastino/gliner2-multi-v1) (mDeBERTa-v3-base, 280M params) with 5 ONNX models. INT8 quantized encoder for CPU inference.
+**Model:** Fine-tuned [GLiNER2](https://huggingface.co/fastino/gliner2-multi-v1) (mDeBERTa-v3-base, 280M params) split into 5 ONNX models. INT8 quantized encoder for CPU inference.
 
-**Stack:** Rust + Axum + ONNX Runtime + HuggingFace Tokenizers
+**Stack:** Rust + Axum + ONNX Runtime + HuggingFace Tokenizers + mimalloc
+
+**How it works:**
+1. Text and entity labels are encoded together by the transformer encoder
+2. Span representation layer scores all possible token spans (up to 8 tokens wide)
+3. Classifier determines which spans match which PII labels
+4. 8-stage post-processing pipeline validates, deduplicates, and merges results
+5. Regex-based detection supplements NER for emails and IP addresses
 
 ## Configuration
 
@@ -141,10 +224,18 @@ Request → Language detection → GLiNER2 NER + (Chinese NER if CJK)
 
 ## Performance
 
-| Setup                   | Latency | Throughput |
-| ----------------------- | ------- | ---------- |
-| MacBook M-series (FP32) | ~150ms  | ~6 req/s   |
-| 4-vCPU AMD (INT8)       | ~250ms  | ~4 req/s   |
+| Setup                   | Latency (p50) | Throughput |
+| ----------------------- | ------------- | ---------- |
+| MacBook M-series (FP32) | ~150ms        | ~6 req/s   |
+| 4-vCPU AMD (INT8)       | ~250ms        | ~4 req/s   |
+| 8-vCPU AMD (INT8)       | ~180ms        | ~5 req/s   |
+
+Memory usage: ~800MB (model weights loaded in RAM).
+
+Tips:
+- Set `ORT_INTRA_THREADS` equal to your vCPU count
+- INT8 encoder gives ~40% speedup with <0.5% accuracy loss
+- First request after idle is slower — the server runs periodic warmup to mitigate this
 
 ## Development
 
@@ -155,9 +246,31 @@ cargo clippy --workspace
 cargo run --release -p pii-engineer-server
 ```
 
+### Project Structure
+
+```
+crates/
+├── pii-engineer-core/     # NER engine, pipeline, model loading
+│   └── src/
+│       ├── gliner/        # GLiNER2 ONNX inference (v1, v2-compat, v2-full)
+│       ├── pipeline.rs    # 8-stage post-processing
+│       ├── labels.rs      # PII label definitions and canonicalization
+│       └── lang.rs        # Language detection (CJK)
+├── pii-engineer-server/   # HTTP server (Axum)
+│   └── src/
+│       ├── routes.rs      # API endpoints
+│       ├── state.rs       # App state, model loading
+│       └── middleware.rs  # Rate limiting, error handling
+static/                    # Embedded frontend (rust-embed)
+models/                    # ONNX models (auto-downloaded)
+```
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. We especially welcome:
+- Validation rules for country-specific ID formats
+- Test cases for underrepresented languages
+- Performance optimizations
 
 ## License
 
