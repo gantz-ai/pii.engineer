@@ -26,14 +26,10 @@ jobs:
       - name: Build release
         run: cargo build --release --package pii-engineer-server
 
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_API_TOKEN }}
-
       - name: Deploy to all pool droplets
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DO_TOKEN: ${{ secrets.DO_API_TOKEN }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/deploy_key
@@ -42,8 +38,17 @@ jobs:
 
           tar czf /tmp/static.tar.gz -C static .
 
-          POOL_ID=$(doctl compute droplet-autoscale-pool list --format ID --no-header | head -1)
-          DROPLETS=$(doctl compute droplet-autoscale-pool list-members $POOL_ID --format PublicIPv4 --no-header)
+          # Get autoscale pool ID
+          POOL_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/droplets/autoscale/pools" | \
+            jq -r '.autoscale_pools[0].id')
+          echo "Pool ID: $POOL_ID"
+
+          # Get pool member IPs
+          DROPLETS=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID/members" | \
+            jq -r '.droplets[].networks.v4[] | select(.type=="public") | .ip_address')
+
           if [ -z "$DROPLETS" ]; then
             echo "No droplets found in autoscale pool"
             exit 1
@@ -66,19 +71,57 @@ jobs:
           done
 
       - name: Update pool snapshot
+        env:
+          DO_TOKEN: ${{ secrets.DO_API_TOKEN }}
         run: |
-          POOL_ID=$(doctl compute droplet-autoscale-pool list --format ID --no-header | head -1)
-          DROPLET_ID=$(doctl compute droplet-autoscale-pool list-members $POOL_ID --format ID --no-header | head -1)
+          # Get pool info
+          POOL_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/droplets/autoscale/pools" | \
+            jq -r '.autoscale_pools[0].id')
+
+          # Get first member droplet ID
+          DROPLET_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID/members" | \
+            jq -r '.droplets[0].id')
+
           SNAP_NAME="pii-engineer-$(date +%Y%m%d-%H%M%S)"
+          echo "Taking snapshot '$SNAP_NAME' of droplet $DROPLET_ID..."
 
-          echo "Taking snapshot of droplet $DROPLET_ID..."
-          doctl compute droplet-action snapshot $DROPLET_ID --snapshot-name "$SNAP_NAME" --wait
+          # Take snapshot
+          ACTION_ID=$(curl -s -X POST -H "Authorization: Bearer $DO_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"type\":\"snapshot\",\"name\":\"$SNAP_NAME\"}" \
+            "https://api.digitalocean.com/v2/droplets/$DROPLET_ID/actions" | \
+            jq -r '.action.id')
 
-          SNAP_ID=$(doctl compute snapshot list --resource droplet --format ID,Name --no-header | grep "$SNAP_NAME" | awk '{print $1}')
+          # Wait for snapshot to complete
+          echo "Waiting for snapshot (action $ACTION_ID)..."
+          for i in $(seq 1 60); do
+            STATUS=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+              "https://api.digitalocean.com/v2/actions/$ACTION_ID" | \
+              jq -r '.action.status')
+            if [ "$STATUS" = "completed" ]; then
+              echo "Snapshot complete"
+              break
+            fi
+            if [ "$STATUS" = "errored" ]; then
+              echo "Snapshot failed"
+              exit 1
+            fi
+            sleep 10
+          done
+
+          # Get new snapshot ID
+          SNAP_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
+            "https://api.digitalocean.com/v2/snapshots?resource_type=droplet" | \
+            jq -r ".snapshots[] | select(.name==\"$SNAP_NAME\") | .id")
 
           if [ -n "$SNAP_ID" ]; then
-            echo "Updating pool $POOL_ID with snapshot $SNAP_ID..."
-            doctl compute droplet-autoscale-pool update $POOL_ID --template-image-id $SNAP_ID
+            echo "Updating pool template with snapshot $SNAP_ID..."
+            curl -s -X PUT -H "Authorization: Bearer $DO_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"template\":{\"image_id\":\"$SNAP_ID\"}}" \
+              "https://api.digitalocean.com/v2/droplets/autoscale/pools/$POOL_ID"
             echo "Pool template updated ✓"
           else
             echo "Warning: could not find snapshot $SNAP_NAME"
