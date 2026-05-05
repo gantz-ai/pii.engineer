@@ -1,0 +1,178 @@
+name: "PII Engineer - Scan for PII"
+description: "Detect personally identifiable information (PII) in your codebase. Supports 50+ languages and 30+ PII types."
+author: "gantz-ai"
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Files or glob pattern to scan (e.g., 'src/**/*.ts', 'data/')"
+    required: false
+    default: "."
+  extensions:
+    description: "Comma-separated file extensions to scan"
+    required: false
+    default: "txt,md,csv,json,yaml,yml,xml,html,log,sql,env,cfg,conf,ini,toml"
+  api_url:
+    description: "PII Engineer API URL (default: public API)"
+    required: false
+    default: "https://pii.engineer"
+  fail_on_pii:
+    description: "Fail the workflow if PII is detected"
+    required: false
+    default: "true"
+  min_score:
+    description: "Minimum confidence score to report (0.0-1.0)"
+    required: false
+    default: "0.85"
+  max_file_size:
+    description: "Max file size in KB to scan (skip larger files)"
+    required: false
+    default: "512"
+  exclude:
+    description: "Comma-separated patterns to exclude (e.g., 'node_modules,dist,*.min.js')"
+    required: false
+    default: "node_modules,dist,build,.git,vendor,__pycache__,.venv"
+
+outputs:
+  pii_found:
+    description: "Whether PII was detected (true/false)"
+    value: ${{ steps.scan.outputs.pii_found }}
+  total_findings:
+    description: "Total number of PII entities found"
+    value: ${{ steps.scan.outputs.total_findings }}
+  report:
+    description: "Path to the JSON report file"
+    value: ${{ steps.scan.outputs.report }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Scan for PII
+      id: scan
+      shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_EXTENSIONS: ${{ inputs.extensions }}
+        INPUT_API_URL: ${{ inputs.api_url }}
+        INPUT_FAIL_ON_PII: ${{ inputs.fail_on_pii }}
+        INPUT_MIN_SCORE: ${{ inputs.min_score }}
+        INPUT_MAX_FILE_SIZE: ${{ inputs.max_file_size }}
+        INPUT_EXCLUDE: ${{ inputs.exclude }}
+      run: |
+        set -euo pipefail
+
+        API_URL="${INPUT_API_URL%/}/api/detect"
+        REPORT_FILE="${RUNNER_TEMP}/pii-report.json"
+        TOTAL=0
+        FILES_SCANNED=0
+        PII_FOUND="false"
+        MAX_BYTES=$((INPUT_MAX_FILE_SIZE * 1024))
+
+        # Build find exclude args
+        EXCLUDE_ARGS=""
+        IFS=',' read -ra EXCL <<< "$INPUT_EXCLUDE"
+        for pat in "${EXCL[@]}"; do
+          pat=$(echo "$pat" | xargs)
+          EXCLUDE_ARGS="$EXCLUDE_ARGS -not -path '*/$pat/*' -not -path '*/$pat' -not -name '$pat'"
+        done
+
+        # Build extension filter
+        EXT_FILTER=""
+        IFS=',' read -ra EXTS <<< "$INPUT_EXTENSIONS"
+        for i in "${!EXTS[@]}"; do
+          ext=$(echo "${EXTS[$i]}" | xargs)
+          if [ $i -eq 0 ]; then
+            EXT_FILTER="-name '*.$ext'"
+          else
+            EXT_FILTER="$EXT_FILTER -o -name '*.$ext'"
+          fi
+        done
+
+        # Find files
+        FILES=$(eval "find $INPUT_PATH -type f \( $EXT_FILTER \) $EXCLUDE_ARGS" 2>/dev/null || true)
+
+        echo '{"findings":[]}' > "$REPORT_FILE"
+
+        if [ -z "$FILES" ]; then
+          echo "No files matching criteria found."
+          echo "pii_found=false" >> "$GITHUB_OUTPUT"
+          echo "total_findings=0" >> "$GITHUB_OUTPUT"
+          echo "report=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "## PII Scan Results" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+
+        FINDINGS_JSON="[]"
+
+        while IFS= read -r file; do
+          [ -z "$file" ] && continue
+
+          # Skip files over size limit
+          FILE_SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+          if [ "$FILE_SIZE" -gt "$MAX_BYTES" ]; then
+            continue
+          fi
+
+          TEXT=$(cat "$file" 2>/dev/null || continue)
+          [ -z "$TEXT" ] && continue
+
+          # Truncate to 10KB per request
+          TEXT=$(echo "$TEXT" | head -c 10240)
+
+          FILES_SCANNED=$((FILES_SCANNED + 1))
+
+          RESPONSE=$(curl -s --max-time 30 -X POST "$API_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg t "$TEXT" '{text: $t}')" 2>/dev/null || echo '{"entities":[]}')
+
+          ENTITIES=$(echo "$RESPONSE" | jq -c --arg ms "$INPUT_MIN_SCORE" \
+            '[.entities[]? | select(.score >= ($ms | tonumber))]' 2>/dev/null || echo '[]')
+
+          COUNT=$(echo "$ENTITIES" | jq 'length')
+
+          if [ "$COUNT" -gt "0" ]; then
+            PII_FOUND="true"
+            TOTAL=$((TOTAL + COUNT))
+
+            echo "$ENTITIES" | jq -c '.[]' | while read -r entity; do
+              TYPE=$(echo "$entity" | jq -r '.type')
+              VALUE=$(echo "$entity" | jq -r '.value')
+              SCORE=$(echo "$entity" | jq -r '.score')
+              LINE=$(grep -n -m1 -F "$VALUE" "$file" 2>/dev/null | cut -d: -f1 || echo "1")
+              echo "::warning file=$file,line=${LINE:-1}::PII detected: $TYPE (score: $SCORE)"
+            done
+
+            echo "| \`$file\` | $COUNT | $(echo "$ENTITIES" | jq -r '[.[].type] | unique | join(", ")') |" >> "$GITHUB_STEP_SUMMARY"
+
+            FINDINGS_JSON=$(echo "$FINDINGS_JSON" | jq --arg f "$file" --argjson e "$ENTITIES" \
+              '. + [{"file": $f, "entities": $e}]')
+          fi
+        done <<< "$FILES"
+
+        # Write report
+        echo "$FINDINGS_JSON" | jq '{findings: .}' > "$REPORT_FILE"
+
+        # Summary
+        if [ "$PII_FOUND" = "true" ]; then
+          sed -i.bak '2i\
+        | File | Count | Types |\
+        |------|-------|-------|\
+        ' "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Total: $TOTAL PII entities found in $FILES_SCANNED files scanned.**" >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "No PII detected in $FILES_SCANNED files scanned." >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        echo "pii_found=$PII_FOUND" >> "$GITHUB_OUTPUT"
+        echo "total_findings=$TOTAL" >> "$GITHUB_OUTPUT"
+        echo "report=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+
+        if [ "$PII_FOUND" = "true" ] && [ "$INPUT_FAIL_ON_PII" = "true" ]; then
+          echo "::error::PII detected in $TOTAL locations. Set fail_on_pii: false to allow."
+          exit 1
+        fi
