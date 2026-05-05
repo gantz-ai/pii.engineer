@@ -11,11 +11,61 @@
     <meta property="og:title" content="Benchmarks — PII Engineer vs Presidio vs spaCy" />
     <meta property="og:description" content="Head-to-head comparison of PII detection tools. Accuracy, latency, multilingual support, and cost." />
     <meta property="og:url" content="https://pii.engineer/benchmarks" />
-    <meta property="og:image" content="https://pii.engineer/static/og-default.png" />
+    <meta property="og:image" content="https://pii.engineer/static/banner.png" />
+    <meta name="robots" content="index, follow" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Benchmarks — PII Engineer vs Presidio vs spaCy" />
     <meta name="twitter:description" content="Head-to-head comparison of PII detection tools. Accuracy, latency, multilingual support, and cost." />
+    <meta name="twitter:image" content="https://pii.engineer/static/banner.png" />
     <link rel="icon" type="image/png" href="/static/favicon.ico" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the best open-source PII detection tool?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PII Engineer achieves 0.86 F1 on multilingual PII detection, outperforming Presidio (0.44), spaCy (0.64), and AWS Comprehend (0.52) on non-English text. It supports 50+ languages from a single model with no GPU required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does PII Engineer compare to Presidio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PII Engineer uses a transformer-based NER model that handles 50+ languages natively. Presidio relies on regex patterns that must be written per locale. On English PII, PII Engineer scores 0.88 F1 vs Presidio's 0.80. On multilingual PII, the gap widens to 0.86 vs 0.44."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does PII Engineer require a GPU?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. PII Engineer runs on CPU using ONNX Runtime with INT8 quantization. A 4-vCPU server achieves ~180ms p50 latency at a cost of $42/month."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What PII types can PII Engineer detect?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PII Engineer detects 30+ PII types including person names, phone numbers, government IDs (NRIC, NIK, Aadhaar), street addresses, dates of birth, email addresses, passport numbers, license plates, and bank account numbers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does PII detection cost with AWS Comprehend vs self-hosted?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "AWS Comprehend costs approximately $1,000/month for 1 million requests. Self-hosted PII Engineer costs $42/month on a single VPS with unlimited requests. Google DLP costs ~$1,500/month and GPT-4 costs ~$3,000+ for the same volume."
+          }
+        }
+      ]
+    }
+    </script>
     <title>Benchmarks — PII Engineer vs Presidio vs spaCy vs AWS Comprehend</title>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");

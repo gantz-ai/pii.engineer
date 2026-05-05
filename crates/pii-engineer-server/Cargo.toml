@@ -23,7 +23,6 @@ tower.workspace = true
 tower-http.workspace = true
 once_cell.workspace = true
 regex.workspace = true
-tokio-stream.workspace = true
 hf-hub.workspace = true
 rust-embed = "8"
 mime_guess = "2"

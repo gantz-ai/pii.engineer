@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/gantz-ai/pii.engineer/actions/workflows/ci.yml"><img src="https://github.com/gantz-ai/pii.engineer/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <img src="https://img.shields.io/badge/Made%20with-Rust-dea584?logo=rust&logoColor=white" alt="Made with Rust" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPL-3.0" /></a>
   <a href="https://huggingface.co/pii-engineer"><img src="https://img.shields.io/badge/HuggingFace-Models-yellow" alt="HuggingFace" /></a>
   <a href="https://pii.engineer/benchmarks"><img src="https://img.shields.io/badge/F1-0.902-brightgreen" alt="F1 Score" /></a>
@@ -25,15 +26,15 @@
 
 ## Why PII Engineer?
 
-| | PII Engineer | Presidio | spaCy | AWS Comprehend |
-|---|---|---|---|---|
-| **F1 (multilingual)** | **0.86** | 0.44 | 0.64 | 0.52 |
-| **F1 (English)** | **0.88** | 0.80 | 0.83 | 0.82 |
-| **Languages** | **50+** | ~10 locales | 1 per model | 12 |
-| **Latency (p50)** | 180ms | 80ms (w/ NER) | 120ms | 200ms |
-| **GPU required** | No | No | Optional | N/A |
-| **Self-hosted** | Yes | Yes | Yes | No |
-| **Cost (1M req/mo)** | **$42** | $42 | $42 | ~$1,000 |
+|                       | PII Engineer | Presidio      | spaCy       | AWS Comprehend |
+| --------------------- | ------------ | ------------- | ----------- | -------------- |
+| **F1 (multilingual)** | **0.86**     | 0.44          | 0.64        | 0.52           |
+| **F1 (English)**      | **0.88**     | 0.80          | 0.83        | 0.82           |
+| **Languages**         | **50+**      | ~10 locales   | 1 per model | 12             |
+| **Latency (p50)**     | 180ms        | 80ms (w/ NER) | 120ms       | 200ms          |
+| **GPU required**      | No           | No            | Optional    | N/A            |
+| **Self-hosted**       | Yes          | Yes           | Yes         | No             |
+| **Cost (1M req/mo)**  | **$42**      | $42           | $42         | ~$1,000        |
 
 [Full benchmarks →](https://pii.engineer/benchmarks)
 
@@ -72,17 +73,17 @@ docker run -p 8000:8000 -v ./models:/app/models pii-engineer
 
 ## PII Types
 
-| Type | Examples |
-|------|---------|
-| `person_name` | Sarah Lim, Ahmad bin Abdullah, 陈伟明 |
-| `phone_number` | +65 9123 4567, 0812-3456-7890 |
-| `government_id` | S9012345B (NRIC), 3201010512890001 (NIK), Aadhaar |
-| `street_address` | 42 Orchard Road #08-12, Jl. Sudirman No. 1 |
-| `date_of_birth` | 12 March 1985, 1990-05-15 |
-| `email_address` | john@example.com |
-| `passport_number` | E12345678 |
-| `license_plate` | SBA1234A, B 1234 CD |
-| `bank_account_number` | 1234-5678-9012 |
+| Type                  | Examples                                          |
+| --------------------- | ------------------------------------------------- |
+| `person_name`         | Sarah Lim, Ahmad bin Abdullah, 陈伟明             |
+| `phone_number`        | +65 9123 4567, 0812-3456-7890                     |
+| `government_id`       | S9012345B (NRIC), 3201010512890001 (NIK), Aadhaar |
+| `street_address`      | 42 Orchard Road #08-12, Jl. Sudirman No. 1        |
+| `date_of_birth`       | 12 March 1985, 1990-05-15                         |
+| `email_address`       | john@example.com                                  |
+| `passport_number`     | E12345678                                         |
+| `license_plate`       | SBA1234A, B 1234 CD                               |
+| `bank_account_number` | 1234-5678-9012                                    |
 
 ## Supported Languages
 
@@ -90,32 +91,25 @@ docker run -p 8000:8000 -v ./models:/app/models pii-engineer
 
 **Secondary:** Thai, Hindi, Bengali, Korean, Japanese, German, French, Russian, and [40+ more](https://pii.engineer/benchmarks)
 
-## GitHub Action
-
-Scan your codebase for PII in CI/CD:
-
-```yaml
-- uses: gantz-ai/pii.engineer@v1.0.1
-  with:
-    path: "src/"
-    extensions: "ts,js,json,md,csv"
-    fail_on_pii: "true"
-```
-
 ## API
 
 ### `POST /api/detect`
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `text` | string | required | Input text (max 50,000 chars) |
-| `labels` | string[] | all 9 types | PII types to detect |
-| `boost` | string[] | [] | Labels to boost with description matching |
+| Field    | Type     | Default     | Description                               |
+| -------- | -------- | ----------- | ----------------------------------------- |
+| `text`   | string   | required    | Input text (max 50,000 chars)             |
+| `labels` | string[] | all 9 types | PII types to detect                       |
+| `boost`  | string[] | []          | Labels to boost with description matching |
 
 ### `GET /api/health`
 
 ```json
-{ "status": "ok", "version": "1.0.0", "gliner_loaded": true, "chinese_loaded": true }
+{
+  "status": "ok",
+  "version": "1.0.0",
+  "gliner_loaded": true,
+  "chinese_loaded": true
+}
 ```
 
 ## Architecture
@@ -135,22 +129,22 @@ Request → Language detection → GLiNER2 NER + (Chinese NER if CJK)
 
 ## Configuration
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8000` | Server port |
-| `GLINER_MODELS` | `models/PII-Engineer-Multi-NER-v2.1` | GLiNER model path |
-| `CHINESE_NER_MODEL` | `models/PII-Engineer-Chinese-NER-v1.0` | Chinese NER model path |
-| `ORT_DYLIB_PATH` | auto-detect | Path to `libonnxruntime.so` / `.dylib` |
-| `ORT_INTRA_THREADS` | `4` | ONNX Runtime intra-op threads |
-| `ORT_INTER_THREADS` | `1` | ONNX Runtime inter-op threads |
-| `PII_ENGINEER_RATE_LIMIT_RPM` | `120` | Max requests per minute per IP |
+| Variable                      | Default                                | Description                            |
+| ----------------------------- | -------------------------------------- | -------------------------------------- |
+| `PORT`                        | `8000`                                 | Server port                            |
+| `GLINER_MODELS`               | `models/PII-Engineer-Multi-NER-v2.1`   | GLiNER model path                      |
+| `CHINESE_NER_MODEL`           | `models/PII-Engineer-Chinese-NER-v1.0` | Chinese NER model path                 |
+| `ORT_DYLIB_PATH`              | auto-detect                            | Path to `libonnxruntime.so` / `.dylib` |
+| `ORT_INTRA_THREADS`           | `4`                                    | ONNX Runtime intra-op threads          |
+| `ORT_INTER_THREADS`           | `1`                                    | ONNX Runtime inter-op threads          |
+| `PII_ENGINEER_RATE_LIMIT_RPM` | `120`                                  | Max requests per minute per IP         |
 
 ## Performance
 
-| Setup | Latency | Throughput |
-|-------|---------|------------|
-| MacBook M-series (FP32) | ~150ms | ~6 req/s |
-| 4-vCPU AMD (INT8) | ~250ms | ~4 req/s |
+| Setup                   | Latency | Throughput |
+| ----------------------- | ------- | ---------- |
+| MacBook M-series (FP32) | ~150ms  | ~6 req/s   |
+| 4-vCPU AMD (INT8)       | ~250ms  | ~4 req/s   |
 
 ## Development
 
@@ -160,6 +154,10 @@ cargo test --workspace
 cargo clippy --workspace
 cargo run --release -p pii-engineer-server
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 

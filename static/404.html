@@ -48,13 +48,19 @@
         background: rgba(59, 130, 246, 0.1);
         border-color: rgba(59, 130, 246, 0.55);
       }
+      .links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <div class="code">404</div>
       <div class="msg">This page doesn't exist.<br>Maybe the PII was redacted too well.</div>
-      <a href="/">Back to PII Engineer</a>
+      <div class="links">
+        <a href="/">Home</a>
+        <a href="/docs.html">API Docs</a>
+        <a href="/benchmarks">Benchmarks</a>
+        <a href="/blog">Blog</a>
+      </div>
     </div>
   </body>
 </html>
