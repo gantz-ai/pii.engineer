@@ -12,7 +12,6 @@ use std::net::SocketAddr;
 
 use anyhow::Result;
 use axum::{middleware as axmw, Router};
-use tower_http::services::ServeDir;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -69,10 +68,7 @@ async fn main() -> Result<()> {
     #[cfg(unix)]
     lock_memory();
 
-    let static_path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
-
     let app: Router = routes::router(state.clone())
-        .nest_service("/static", ServeDir::new(&static_path))
         .layer(axmw::from_fn_with_state(state.clone(), middleware::rate_limit))
         .layer(axmw::from_fn(middleware::request_id))
         .layer(axmw::from_fn(middleware::global_error));

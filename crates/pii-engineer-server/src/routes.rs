@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::State,
-    http::StatusCode,
+    extract::{Path, State},
+    http::{header, StatusCode},
     response::{IntoResponse, Response},
     routing::{get, post},
     Json, Router,
@@ -11,10 +11,15 @@ use pii_engineer_core::lang::has_chinese;
 use pii_engineer_core::labels::canonicalize;
 use pii_engineer_core::pipeline::default_labels;
 use pii_engineer_core::{run_pipeline, ChineseNer, Entity, GlinerSpanModel, PipelineConfig};
+use rust_embed::Embed;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::state::AppState;
+
+#[derive(Embed)]
+#[folder = "../../static/"]
+struct StaticAssets;
 
 pub fn router(state: AppState) -> Router {
     Router::new()
@@ -29,20 +34,46 @@ pub fn router(state: AppState) -> Router {
         .route("/docs.html", get(docs))
         .route("/sitemap.xml", get(sitemap))
         .route("/robots.txt", get(robots))
+        .route("/static/*path", get(serve_static))
         .fallback(not_found)
         .with_state(state)
 }
 
-async fn blog() -> impl IntoResponse {
-    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
-    match tokio::fs::read_to_string(format!("{path}/blog.html")).await {
-        Ok(s) => axum::response::Html(s).into_response(),
-        Err(_) => (StatusCode::NOT_FOUND, "blog not found").into_response(),
+fn embedded_html(name: &str) -> Response {
+    match StaticAssets::get(name) {
+        Some(file) => (
+            [(header::CONTENT_TYPE, "text/html; charset=utf-8")],
+            file.data,
+        )
+            .into_response(),
+        None => (StatusCode::NOT_FOUND, "not found").into_response(),
     }
 }
 
+async fn serve_static(Path(path): Path<String>) -> Response {
+    match StaticAssets::get(&path) {
+        Some(file) => {
+            let mime = mime_guess::from_path(&path)
+                .first_or_octet_stream()
+                .to_string();
+            (
+                [
+                    (header::CONTENT_TYPE, mime),
+                    (header::CACHE_CONTROL, "public, max-age=86400".to_string()),
+                ],
+                file.data,
+            )
+                .into_response()
+        }
+        None => (StatusCode::NOT_FOUND, "not found").into_response(),
+    }
+}
+
+async fn blog() -> Response {
+    embedded_html("blog.html")
+}
+
 async fn sitemap() -> impl IntoResponse {
-    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
     let base = "https://pii.engineer";
 
     let mut urls = vec![
@@ -62,8 +93,8 @@ async fn sitemap() -> impl IntoResponse {
         langs: Vec<String>,
     }
 
-    if let Ok(data) = tokio::fs::read_to_string(format!("{path}/blog/posts.json")).await {
-        if let Ok(posts) = serde_json::from_str::<Posts>(&data) {
+    if let Some(file) = StaticAssets::get("blog/posts.json") {
+        if let Ok(posts) = serde_json::from_slice::<Posts>(&file.data) {
             for l in &posts.languages {
                 if l != "en" {
                     urls.push((format!("{base}/blog/{l}"), "0.7", "weekly"));
@@ -100,32 +131,24 @@ async fn robots() -> impl IntoResponse {
     )
 }
 
-async fn docs() -> impl IntoResponse {
-    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
-    match tokio::fs::read_to_string(format!("{path}/docs.html")).await {
-        Ok(s) => axum::response::Html(s).into_response(),
-        Err(_) => (StatusCode::NOT_FOUND, "not found").into_response(),
-    }
+async fn docs() -> Response {
+    embedded_html("docs.html")
 }
 
-async fn index() -> impl IntoResponse {
-    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
-    match tokio::fs::read_to_string(format!("{path}/index.html")).await {
-        Ok(s) => axum::response::Html(s).into_response(),
-        Err(_) => (
+async fn index() -> Response {
+    embedded_html("index.html")
+}
+
+
+async fn not_found() -> Response {
+    match StaticAssets::get("404.html") {
+        Some(file) => (
             StatusCode::NOT_FOUND,
-            Json(json!({"error":"static_missing"})),
+            [(header::CONTENT_TYPE, "text/html; charset=utf-8")],
+            file.data,
         )
             .into_response(),
-    }
-}
-
-
-async fn not_found() -> impl IntoResponse {
-    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
-    match tokio::fs::read_to_string(format!("{path}/404.html")).await {
-        Ok(s) => (StatusCode::NOT_FOUND, axum::response::Html(s)).into_response(),
-        Err(_) => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
+        None => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
     }
 }
 

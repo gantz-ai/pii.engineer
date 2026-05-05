@@ -36,8 +36,6 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           SSH_OPTS="-o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i ~/.ssh/deploy_key"
 
-          tar czf /tmp/static.tar.gz -C static .
-
           # Get autoscale pool ID
           POOL_ID=$(curl -s -H "Authorization: Bearer $DO_TOKEN" \
             "https://api.digitalocean.com/v2/droplets/autoscale" | \
@@ -66,11 +64,7 @@ jobs:
           for IP in $DROPLETS; do
             echo "Deploying to $IP..."
             scp $SSH_OPTS target/release/pii-engineer-server root@$IP:/opt/pii-engineer/pii-engineer-server.new
-            scp $SSH_OPTS /tmp/static.tar.gz root@$IP:/tmp/static.tar.gz
             ssh $SSH_OPTS root@$IP '
-              mkdir -p /opt/pii-engineer/static
-              tar xzf /tmp/static.tar.gz -C /opt/pii-engineer/static
-              rm /tmp/static.tar.gz
               systemctl stop pii-engineer || true
               mv /opt/pii-engineer/pii-engineer-server.new /opt/pii-engineer/pii-engineer-server
               chmod +x /opt/pii-engineer/pii-engineer-server
