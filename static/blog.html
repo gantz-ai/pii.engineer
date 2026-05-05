@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="description" content="PII Engineer blog — articles on multilingual PII detection, privacy compliance, and NER model architecture." />
+    <link rel="canonical" href="https://pii.engineer/blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PII Engineer" />
+    <meta property="og:title" content="Blog — PII Engineer" />
+    <meta property="og:description" content="Articles on multilingual PII detection, privacy compliance, and NER model architecture." />
+    <meta property="og:url" content="https://pii.engineer/blog" />
+    <meta property="og:image" content="https://pii.engineer/static/og-default.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Blog — PII Engineer" />
+    <meta name="twitter:description" content="Articles on multilingual PII detection, privacy compliance, and NER model architecture." />
+    <meta name="twitter:image" content="https://pii.engineer/static/og-default.png" />
     <link rel="icon" type="image/png" href="/static/favicon.ico" />
     <title>Blog — PII Engineer</title>
     <style>
@@ -26,128 +37,235 @@
         --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       }
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        background: var(--bg);
-        color: var(--fg);
-        font-family: var(--sans);
-        font-size: 14px;
-        line-height: 1.7;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 32px 80px;
-      }
-      .back {
-        display: inline-block;
-        color: var(--fg-3);
-        text-decoration: none;
-        font-family: var(--mono);
-        font-size: 12px;
-        margin-bottom: 32px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
+      body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.8; }
+      .container { max-width: 720px; margin: 0 auto; padding: 40px 32px 80px; }
+
+      /* nav */
+      .back { display: inline-block; color: var(--fg-3); text-decoration: none; font-family: var(--mono); font-size: 12px; margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.05em; }
       .back:hover { color: var(--accent-bright); }
-      h1 {
-        font-family: var(--mono);
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 8px;
-      }
-      h1 span { color: var(--accent-bright); }
-      .subtitle {
-        color: var(--fg-3);
-        font-size: 14px;
-        margin-bottom: 48px;
-      }
-      .post-list {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
-      .post-card {
-        display: block;
-        background: var(--bg-1);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px 28px;
-        text-decoration: none;
-        transition: border-color 0.15s, box-shadow 0.15s;
-      }
-      .post-card:hover {
-        border-color: var(--border-hover);
-        box-shadow: 0 4px 24px rgba(59, 130, 246, 0.08);
-      }
-      .post-meta {
-        font-family: var(--mono);
-        font-size: 11px;
-        color: var(--fg-3);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 8px;
-        display: flex;
-        gap: 16px;
-      }
-      .post-tag {
-        color: var(--green);
-      }
-      .post-card h2 {
-        font-family: var(--mono);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--fg);
-        margin-bottom: 8px;
-      }
-      .post-card p {
-        color: var(--fg-2);
-        font-size: 13px;
-        line-height: 1.6;
-        margin: 0;
-      }
+
+      /* lang switcher */
+      .lang-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+      .lang-btn { padding: 4px 12px; font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-3); background: transparent; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; text-decoration: none; transition: all 0.15s; }
+      .lang-btn:hover { color: var(--fg); border-color: var(--border-hover); }
+      .lang-btn.active { color: var(--accent-bright); border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+
+      /* index */
+      .page-title { font-family: var(--mono); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+      .page-title span { color: var(--accent-bright); }
+      .subtitle { color: var(--fg-3); font-size: 14px; margin-bottom: 24px; }
+      .post-list { display: flex; flex-direction: column; gap: 24px; }
+      .post-card { display: block; background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; text-decoration: none; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+      .post-card:hover { border-color: var(--border-hover); box-shadow: 0 4px 24px rgba(59, 130, 246, 0.08); }
+      .post-meta { font-family: var(--mono); font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; gap: 16px; }
+      .post-tag { color: var(--green); }
+      .post-card h2 { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: 8px; }
+      .post-card p { color: var(--fg-2); font-size: 13px; line-height: 1.6; margin: 0; }
+      .no-posts { color: var(--fg-3); font-family: var(--mono); font-size: 13px; padding: 40px 0; text-align: center; }
+
+      /* article */
+      .meta { font-family: var(--mono); font-size: 12px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+      .tag { color: var(--green); }
+      .article-title { font-family: var(--mono); font-size: 26px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; }
+      .lead { color: var(--fg-2); font-size: 16px; line-height: 1.7; margin-bottom: 24px; border-left: 3px solid var(--accent); padding-left: 16px; }
+      .hero-img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px; }
+
+      /* markdown content */
+      .md-body h2 { font-family: var(--mono); font-size: 18px; font-weight: 600; color: var(--accent-bright); margin: 40px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+      .md-body h3 { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--fg); margin: 28px 0 12px; }
+      .md-body p { margin-bottom: 16px; color: var(--fg-2); }
+      .md-body strong { color: var(--fg); }
+      .md-body code { font-family: var(--mono); font-size: 13px; background: var(--bg-2); padding: 2px 6px; border-radius: 3px; color: var(--accent-bright); }
+      .md-body pre { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; margin: 12px 0 20px; font-family: var(--mono); font-size: 13px; line-height: 1.6; color: var(--fg-2); }
+      .md-body pre code { background: none; padding: 0; color: inherit; }
+      .md-body pre code.hljs { background: none; padding: 0; }
+      .md-body table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
+      .md-body th, .md-body td { text-align: left; padding: 8px 12px; border: 1px solid var(--border); font-family: var(--mono); font-size: 12px; }
+      .md-body th { background: var(--bg-2); color: var(--fg-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+      .md-body td { color: var(--fg-2); }
+      .md-body ul, .md-body ol { margin: 0 0 16px 24px; color: var(--fg-2); }
+      .md-body li { margin-bottom: 6px; }
+      .md-body a { color: var(--accent-bright); }
+
+      /* loading */
+      .loading { color: var(--fg-3); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+
       @media (max-width: 640px) {
         .container { padding: 24px 16px 60px; }
-        h1 { font-size: 22px; }
+        .page-title { font-size: 22px; }
+        .article-title { font-size: 20px; }
+        .md-body h2 { font-size: 15px; }
+        .md-body pre { font-size: 11px; padding: 12px; }
+        .md-body table { display: block; overflow-x: auto; }
+        .md-body th, .md-body td { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
         .post-card { padding: 16px 18px; }
         .post-card h2 { font-size: 14px; }
         .post-card p { font-size: 12px; }
       }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      marked.use({ renderer: {
+        code({ text, lang }) {
+          const language = lang && hljs.getLanguage(lang) ? lang : null;
+          const highlighted = language
+            ? hljs.highlight(text, { language }).value
+            : hljs.highlightAuto(text).value;
+          return `<pre><code class="hljs${language ? ' language-' + language : ''}">${highlighted}</code></pre>`;
+        }
+      }});
+    </script>
   </head>
   <body>
     <div class="container">
       <a href="/" class="back">&larr; Back to PII Engineer</a>
-      <h1><span>Blog</span></h1>
-      <p class="subtitle">Articles on PII detection, privacy compliance, and NER model architecture.</p>
-
-      <div class="post-list">
-        <a href="/static/blog/how-pii-engineer-detects-personal-data.html" class="post-card">
-          <div class="post-meta">
-            <span>May 2026</span>
-            <span class="post-tag">Architecture</span>
-          </div>
-          <h2>How PII Engineer Detects Personal Data Across 13+ Languages</h2>
-          <p>A deep dive into the GLiNER2 NER engine, the 8-stage post-processing pipeline, and how we achieve 90%+ F1 across 9 PII types without a GPU.</p>
-        </a>
-
-        <a href="/static/blog/pdpa-compliance-automating-pii-detection.html" class="post-card">
-          <div class="post-meta">
-            <span>May 2026</span>
-            <span class="post-tag">Compliance</span>
-          </div>
-          <h2>PDPA Compliance: Automating PII Detection in Southeast Asia</h2>
-          <p>How to use PII Engineer to scan documents, chat logs, and databases for personal data under PDPA, PDPD, PDP Law, and PIPL regulations.</p>
-        </a>
-
-        <a href="/static/blog/benchmarking-pii-detection.html" class="post-card">
-          <div class="post-meta">
-            <span>May 2026</span>
-            <span class="post-tag">Benchmarks</span>
-          </div>
-          <h2>Benchmarking PII Detection: Precision vs Recall Across 9 Entity Types</h2>
-          <p>Our evaluation results on real-world multilingual text — what works, where the model struggles, and how the post-processing pipeline improves raw NER output.</p>
-        </a>
-      </div>
+      <div id="app"><span class="loading">Loading...</span></div>
     </div>
+    <script>
+      const BASE = 'https://pii.engineer';
+
+      function setMeta(property, content) {
+        let el = document.querySelector(`meta[property="${property}"]`) || document.querySelector(`meta[name="${property}"]`);
+        if (el) { el.setAttribute('content', content); }
+      }
+
+      function setCanonical(url) {
+        const el = document.querySelector('link[rel="canonical"]');
+        if (el) el.setAttribute('href', url);
+      }
+
+      function addHreflang(langs, slug) {
+        langs.forEach(l => {
+          const link = document.createElement('link');
+          link.rel = 'alternate';
+          link.hreflang = l === 'zh' ? 'zh-Hans' : l;
+          link.href = `${BASE}/blog/post/${l}/${slug}`;
+          document.head.appendChild(link);
+        });
+        const xd = document.createElement('link');
+        xd.rel = 'alternate';
+        xd.hreflang = 'x-default';
+        xd.href = `${BASE}/blog/post/en/${slug}`;
+        document.head.appendChild(xd);
+      }
+
+      function addJsonLd(meta, slug, lang) {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": meta.title || slug,
+          "description": meta.description || '',
+          "datePublished": meta.date ? meta.date + '-01' : '',
+          "image": `${BASE}/static/blog/images/${slug}.png`,
+          "url": `${BASE}/blog/post/${lang}/${slug}`,
+          "inLanguage": lang,
+          "author": { "@type": "Organization", "name": "PII Engineer", "url": BASE },
+          "publisher": { "@type": "Organization", "name": "PII Engineer", "url": BASE }
+        });
+        document.head.appendChild(script);
+      }
+
+      function parseFrontmatter(md) {
+        const m = md.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+        if (!m) return { meta: {}, body: md };
+        const meta = {};
+        m[1].split('\n').forEach(line => {
+          const i = line.indexOf(':');
+          if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^["']|["']$/g, '');
+        });
+        return { meta, body: m[2] };
+      }
+
+      // Parse path: /blog, /blog/zh, /blog/post/en/slug
+      const parts = location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+      // parts: ["blog"] or ["blog","zh"] or ["blog","post","en","slug"]
+      let lang = 'en', slug = null;
+      if (parts[1] === 'post' && parts.length >= 4) {
+        lang = parts[2];
+        slug = parts.slice(3).join('/');
+      } else if (parts[1] && parts[1] !== 'post') {
+        lang = parts[1];
+      }
+      const app = document.getElementById('app');
+
+      function langBar(langs, current, postSlug) {
+        return '<div class="lang-bar">' + langs.map(l => {
+          const href = postSlug ? `/blog/post/${l}/${postSlug}` : `/blog/${l}`;
+          return `<a href="${href}" class="lang-btn ${l === current ? 'active' : ''}">${l}</a>`;
+        }).join('') + '</div>';
+      }
+
+      if (slug) {
+        fetch(`/static/blog/${lang}/${slug}.md`)
+          .then(r => {
+            if (!r.ok) throw new Error(r.status);
+            return r.text();
+          })
+          .then(md => {
+            const { meta, body } = parseFrontmatter(md);
+            document.title = (meta.title || slug) + ' — PII Engineer';
+            const desc = document.querySelector('meta[name="description"]');
+            if (desc && meta.description) desc.content = meta.description;
+
+            fetch('/static/blog/posts.json').then(r => r.json()).then(data => {
+              const post = data.posts.find(p => p.slug === slug);
+              const langs = post ? post.langs : [lang];
+              const imgUrl = `${BASE}/static/blog/images/${slug}.png`;
+              const pageUrl = `${BASE}/blog/post/${lang}/${slug}`;
+
+              setMeta('og:type', 'article');
+              setMeta('og:title', meta.title || slug);
+              setMeta('og:description', meta.description || '');
+              setMeta('og:url', pageUrl);
+              setMeta('og:image', imgUrl);
+              setMeta('twitter:title', meta.title || slug);
+              setMeta('twitter:description', meta.description || '');
+              setMeta('twitter:image', imgUrl);
+              setCanonical(pageUrl);
+              addHreflang(langs, slug);
+              addJsonLd(meta, slug, lang);
+
+              document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+
+              app.innerHTML =
+                langBar(langs, lang, slug) +
+                `<div class="meta">${meta.date || ''} <span class="tag">· ${meta.tag || ''}</span></div>` +
+                `<h1 class="article-title">${meta.title || ''}</h1>` +
+                `<p class="lead">${meta.description || ''}</p>` +
+                `<img src="/static/blog/images/${slug}.png" alt="${(meta.title || '').replace(/"/g, '&quot;')}" class="hero-img" onerror="this.style.display='none'">` +
+                `<div class="md-body">${marked.parse(body)}</div>`;
+            });
+          })
+          .catch(() => {
+            app.innerHTML = `<p style="color:var(--fg-3)">Article not available in this language.</p><p><a href="/blog" style="color:var(--accent-bright)">Back to blog</a></p>`;
+          });
+      } else {
+        fetch('/static/blog/posts.json').then(r => r.json()).then(data => {
+            const posts = data.posts.filter(p => p.langs.includes(lang));
+            let html = langBar(data.languages, lang) +
+              `<h1 class="page-title"><span>Blog</span></h1>` +
+              `<p class="subtitle">Articles on PII detection, privacy compliance, and NER model architecture.</p>` +
+              `<div class="post-list">`;
+
+            if (posts.length === 0) {
+              html += `<div class="no-posts">No articles available in this language yet.</div>`;
+            } else {
+              posts.forEach(p => {
+                html += `<a href="/blog/post/${lang}/${p.slug}" class="post-card">
+                  <div class="post-meta"><span>${p.date}</span><span class="post-tag">${p.tag}</span></div>
+                  <h2>${p.title[lang] || p.title.en}</h2>
+                  <p>${p.description[lang] || p.description.en}</p>
+                </a>`;
+              });
+            }
+            html += '</div>';
+            app.innerHTML = html;
+          });
+      }
+    </script>
   </body>
 </html>

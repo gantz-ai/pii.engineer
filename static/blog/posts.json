@@ -1,0 +1,165 @@
+{
+  "languages": ["en", "zh", "vi"],
+  "posts": [
+    {
+      "slug": "how-pii-engineer-detects-personal-data",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Architecture",
+      "title": {
+        "en": "How PII Engineer Detects Personal Data Across 13+ Languages",
+        "zh": "PII Engineer 如何跨 13+ 种语言检测个人数据",
+        "vi": "PII Engineer phát hiện dữ liệu cá nhân trên 13+ ngôn ngữ như thế nào"
+      },
+      "description": {
+        "en": "A deep dive into the GLiNER2 NER engine, the 8-stage post-processing pipeline, and how we achieve 90%+ F1 across 9 PII types without a GPU.",
+        "zh": "深入解析 GLiNER2 NER 引擎、8 阶段后处理流水线，以及如何在纯 CPU 推理下对 9 种 PII 类型达到 90%+ 的 F1 值。",
+        "vi": "Phân tích chuyên sâu về engine GLiNER2 NER, pipeline xử lý hậu kỳ 8 giai đoạn, và cách đạt F1 90%+ trên 9 loại PII mà không cần GPU."
+      }
+    },
+    {
+      "slug": "pdpa-compliance-automating-pii-detection",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Compliance",
+      "title": {
+        "en": "PDPA Compliance: Automating PII Detection in Southeast Asia",
+        "zh": "PDPA 合规：自动化东南亚个人数据检测",
+        "vi": "Tuân thủ PDPA: Tự động hóa phát hiện PII tại Đông Nam Á"
+      },
+      "description": {
+        "en": "How to use PII Engineer to scan documents, chat logs, and databases for personal data under PDPA, PDPD, PDP Law, and PIPL regulations.",
+        "zh": "如何使用 PII Engineer 扫描文档、聊天记录和数据库，检测受 PDPA、PDPD、PDP Law 和 PIPL 法规管辖的个人数据。",
+        "vi": "Cách sử dụng PII Engineer để quét tài liệu, nhật ký chat và cơ sở dữ liệu nhằm phát hiện dữ liệu cá nhân theo quy định PDPA, PDPD, PDP Law và PIPL."
+      }
+    },
+    {
+      "slug": "benchmarking-pii-detection",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Benchmarks",
+      "title": {
+        "en": "Benchmarking PII Detection: Precision vs Recall Across 9 Entity Types",
+        "zh": "PII 检测基准测试：9 种实体类型的精确率与召回率",
+        "vi": "Đánh giá hiệu năng phát hiện PII: Precision và Recall trên 9 loại thực thể"
+      },
+      "description": {
+        "en": "Our evaluation results on real-world multilingual text — what works, where the model struggles, and how the post-processing pipeline improves raw NER output.",
+        "zh": "我们在真实多语言文本上的评估结果——哪些有效、模型在哪些方面存在不足、以及后处理流水线如何改善原始 NER 输出。",
+        "vi": "Kết quả đánh giá trên văn bản đa ngôn ngữ thực tế — điểm mạnh, điểm yếu của mô hình, và cách pipeline hậu xử lý cải thiện đầu ra NER."
+      }
+    },
+    {
+      "slug": "redact-pii-from-documents-with-api",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Tutorial",
+      "title": {
+        "en": "How to Redact PII from Documents Using the PII Engineer API",
+        "zh": "如何使用 PII Engineer API 从文档中脱敏个人信息",
+        "vi": "Cách Che Giấu PII Trong Tài Liệu Bằng API PII Engineer"
+      },
+      "description": {
+        "en": "A practical guide to integrating PII Engineer's REST API for document redaction — curl examples, Python code, batch processing, and PDF pipelines.",
+        "zh": "将 PII Engineer 的 REST API 集成到文档处理流水线中的实用指南。涵盖 curl 示例、Python 集成、批量处理和 PDF 转脱敏文本的工作流程。",
+        "vi": "Hướng dẫn thực hành tích hợp REST API của PII Engineer vào quy trình xử lý tài liệu. Bao gồm ví dụ curl, tích hợp Python, xử lý hàng loạt và quy trình chuyển đổi PDF thành văn bản đã được che giấu."
+      }
+    },
+    {
+      "slug": "pii-detection-for-healthcare-compliance",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Healthcare",
+      "title": {
+        "en": "PII Detection for Healthcare: Protecting Patient Data Under HIPAA and PDPA",
+        "zh": "医疗保健中的 PII 检测：在 HIPAA 和 PDPA 合规下保护患者数据",
+        "vi": "Phát Hiện PII Cho Y Tế: Bảo Vệ Dữ Liệu Bệnh Nhân Theo HIPAA và PDPA"
+      },
+      "description": {
+        "en": "How PII Engineer handles medical text, protects PHI in clinical notes and insurance claims, and maps to HIPAA and PDPA compliance requirements.",
+        "zh": "PII Engineer 如何处理医疗保健特有的挑战——临床笔记、用药记录、保险理赔——同时通过自托管部署满足 HIPAA 和 PDPA 合规要求。",
+        "vi": "Cách PII Engineer xử lý các thách thức đặc thù trong y tế — ghi chú lâm sàng, hồ sơ thuốc, yêu cầu bảo hiểm — đồng thời đáp ứng yêu cầu tuân thủ HIPAA và PDPA thông qua triển khai tự lưu trữ."
+      }
+    },
+    {
+      "slug": "gliner2-vs-spacy-vs-presidio-ner-comparison",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Comparison",
+      "title": {
+        "en": "GLiNER2 vs spaCy vs Presidio: Multilingual PII Detection Compared",
+        "zh": "GLiNER2 vs spaCy vs Presidio：多语言 PII 检测对比",
+        "vi": "GLiNER2 vs spaCy vs Presidio: So Sánh Phát Hiện PII Đa Ngôn Ngữ"
+      },
+      "description": {
+        "en": "A fair comparison of three PII detection approaches — regex, statistical NER, and transformer span models — on accuracy, latency, multilingual support, and deployment.",
+        "zh": "三种 PII 检测方案的技术对比——基于正则的 Presidio、统计 NER 的 spaCy、以及基于 span 的 transformer NER（GLiNER2/PII Engineer）。从多语言支持、准确度、延迟和部署复杂度多维度评估。",
+        "vi": "So sánh kỹ thuật ba phương pháp phát hiện PII — dựa trên regex (Presidio), NER thống kê (spaCy), và NER transformer dựa trên span (GLiNER2/PII Engineer). Đánh giá về hỗ trợ đa ngôn ngữ, độ chính xác, độ trễ và độ phức tạp triển khai."
+      }
+    },
+    {
+      "slug": "self-hosting-pii-engineer-with-docker",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Tutorial",
+      "title": {
+        "en": "Self-Hosting PII Engineer with Docker",
+        "zh": "使用 Docker 自托管 PII Engineer",
+        "vi": "Tự Triển Khai PII Engineer với Docker"
+      },
+      "description": {
+        "en": "A step-by-step guide to deploying PII Engineer on your own infrastructure using Docker — from single-container setup to production-ready docker-compose with health checks and persistent model caching.",
+        "zh": "部署 PII Engineer 到您自己的基础设施的分步指南——从单容器部署到带有健康检查和持久模型缓存的生产就绪 docker-compose 配置。",
+        "vi": "Hướng dẫn từng bước triển khai PII Engineer trên hạ tầng riêng bằng Docker — từ cài đặt container đơn lẻ đến cấu hình docker-compose sẵn sàng cho production với health check và cache model lâu dài."
+      }
+    },
+    {
+      "slug": "gdpr-vs-pdpa-pii-detection-requirements",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Compliance",
+      "title": {
+        "en": "GDPR vs PDPA: PII Detection Requirements Compared",
+        "zh": "GDPR 与 PDPA：PII 检测要求对比",
+        "vi": "GDPR vs PDPA: So Sánh Yêu Cầu Phát Hiện PII"
+      },
+      "description": {
+        "en": "A side-by-side comparison of EU GDPR and Southeast Asian PDPA regulations — what counts as personal data, how detection requirements differ, and how PII Engineer maps to both frameworks.",
+        "zh": "欧盟 GDPR 与东南亚 PDPA 法规的并列比较——什么算作个人数据、检测要求有何不同，以及 PII Engineer 如何映射到这两个框架。",
+        "vi": "So sánh song song giữa GDPR của EU và các quy định PDPA tại Đông Nam Á — thế nào được coi là dữ liệu cá nhân, yêu cầu phát hiện khác nhau ra sao, và PII Engineer ánh xạ vào cả hai khuôn khổ như thế nào."
+      }
+    },
+    {
+      "slug": "detecting-pii-in-chat-logs-and-support-data",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Use Case",
+      "title": {
+        "en": "Detecting PII in Chat Logs and Customer Support Data",
+        "zh": "在聊天记录和客户支持数据中检测 PII",
+        "vi": "Phát Hiện PII trong Chat Log và Dữ Liệu Hỗ Trợ Khách Hàng"
+      },
+      "description": {
+        "en": "How to scan Slack messages, Zendesk tickets, WhatsApp exports, and customer support transcripts for personal data — handling informal text, multilingual conversations, and high-volume message streams.",
+        "zh": "如何扫描 Slack 消息、Zendesk 工单、WhatsApp 导出和客户支持对话记录中的个人数据——处理非正式文本、多语言对话和高流量消息流。",
+        "vi": "Cách quét tin nhắn Slack, ticket Zendesk, bản xuất WhatsApp và bản ghi hỗ trợ khách hàng để tìm dữ liệu cá nhân — xử lý văn bản phi trang trọng, hội thoại đa ngôn ngữ và luồng tin nhắn khối lượng lớn."
+      }
+    },
+    {
+      "slug": "building-data-loss-prevention-pipeline",
+      "langs": ["en", "zh", "vi"],
+      "date": "2026-05",
+      "tag": "Architecture",
+      "title": {
+        "en": "Building a Data Loss Prevention Pipeline with PII Engineer",
+        "zh": "使用 PII Engineer 构建数据防泄漏管线",
+        "vi": "Xây Dựng Pipeline Chống Thất Thoát Dữ Liệu với PII Engineer"
+      },
+      "description": {
+        "en": "How to integrate PII Engineer into a DLP pipeline — pre-commit hooks for code repositories, CI/CD scanning, S3 bucket auditing, and database field classification.",
+        "zh": "如何将 PII Engineer 集成到 DLP 管线中——代码仓库的 pre-commit 钩子、CI/CD 扫描、S3 存储桶审计和数据库字段分类。",
+        "vi": "Cách tích hợp PII Engineer vào pipeline DLP — pre-commit hook cho code repository, quét trong CI/CD, kiểm toán S3 bucket và phân loại trường cơ sở dữ liệu."
+      }
+    }
+  ]
+}

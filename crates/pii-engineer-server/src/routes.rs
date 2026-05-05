@@ -21,8 +21,91 @@ pub fn router(state: AppState) -> Router {
         .route("/", get(index))
         .route("/api/health", get(health))
         .route("/api/detect", post(detect))
+        .route("/blog", get(blog))
+        .route("/blog/en", get(blog))
+        .route("/blog/zh", get(blog))
+        .route("/blog/vi", get(blog))
+        .route("/blog/post/:lang/:slug", get(blog))
+        .route("/docs.html", get(docs))
+        .route("/sitemap.xml", get(sitemap))
+        .route("/robots.txt", get(robots))
         .fallback(not_found)
         .with_state(state)
+}
+
+async fn blog() -> impl IntoResponse {
+    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
+    match tokio::fs::read_to_string(format!("{path}/blog.html")).await {
+        Ok(s) => axum::response::Html(s).into_response(),
+        Err(_) => (StatusCode::NOT_FOUND, "blog not found").into_response(),
+    }
+}
+
+async fn sitemap() -> impl IntoResponse {
+    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
+    let base = "https://pii.engineer";
+
+    let mut urls = vec![
+        (format!("{base}/"), "1.0", "weekly"),
+        (format!("{base}/docs.html"), "0.8", "monthly"),
+        (format!("{base}/blog"), "0.9", "weekly"),
+    ];
+
+    #[derive(Deserialize)]
+    struct Posts {
+        languages: Vec<String>,
+        posts: Vec<Post>,
+    }
+    #[derive(Deserialize)]
+    struct Post {
+        slug: String,
+        langs: Vec<String>,
+    }
+
+    if let Ok(data) = tokio::fs::read_to_string(format!("{path}/blog/posts.json")).await {
+        if let Ok(posts) = serde_json::from_str::<Posts>(&data) {
+            for l in &posts.languages {
+                if l != "en" {
+                    urls.push((format!("{base}/blog/{l}"), "0.7", "weekly"));
+                }
+            }
+            for p in &posts.posts {
+                for l in &p.langs {
+                    urls.push((format!("{base}/blog/post/{l}/{}", p.slug), "0.8", "monthly"));
+                }
+            }
+        }
+    }
+
+    let mut xml = String::from(r#"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">"#);
+
+    for (loc, priority, freq) in &urls {
+        xml.push_str(&format!(
+            "\n  <url>\n    <loc>{loc}</loc>\n    <changefreq>{freq}</changefreq>\n    <priority>{priority}</priority>\n  </url>"
+        ));
+    }
+    xml.push_str("\n</urlset>\n");
+
+    (
+        [(axum::http::header::CONTENT_TYPE, "application/xml")],
+        xml,
+    )
+}
+
+async fn robots() -> impl IntoResponse {
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/plain")],
+        "User-agent: *\nAllow: /\n\nSitemap: https://pii.engineer/sitemap.xml\n",
+    )
+}
+
+async fn docs() -> impl IntoResponse {
+    let path = std::env::var("PII_ENGINEER_STATIC_DIR").unwrap_or_else(|_| "static".into());
+    match tokio::fs::read_to_string(format!("{path}/docs.html")).await {
+        Ok(s) => axum::response::Html(s).into_response(),
+        Err(_) => (StatusCode::NOT_FOUND, "not found").into_response(),
+    }
 }
 
 async fn index() -> impl IntoResponse {
